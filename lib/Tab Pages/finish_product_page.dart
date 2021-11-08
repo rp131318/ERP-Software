@@ -6,6 +6,7 @@ import 'package:filepicker_windows/filepicker_windows.dart';
 import '../globalVariable.dart';
 import 'package:http/http.dart';
 import 'dart:io' as Io;
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class FinishProductPage extends StatefulWidget {
@@ -24,14 +25,8 @@ class _FinishProductPageState extends State<FinishProductPage> {
   String rawMaterialDropdown = "Select";
   String finishProductDropdown = "Select";
   var title = ["Sr. No.", "Name", "Quantity"];
-  var title1 = [
-    "Sr. No.",
-    "Name",
-    "Quantity",
-    "Serial Number",
-    "Date",
-    "Bill Photo"
-  ];
+  var title1 = ["Sr. No.", "Name", "Quantity", "Date", "Bill Photo"];
+  String dateString = "DD-MM-YYYY";
   var name = [];
   var finishProductName = [];
   var finishProductRawData = [];
@@ -44,6 +39,7 @@ class _FinishProductPageState extends State<FinishProductPage> {
   var rawMaterialNameDatabase = [];
   var rawMaterialQntDatabase = [];
   var jsonDataOfProductName;
+  bool allAttemptDone = true;
   String filePath = " ";
   List<String> rawMaterialList = [
     "Select",
@@ -228,7 +224,7 @@ class _FinishProductPageState extends State<FinishProductPage> {
                 children: [
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 144),
+                      padding: const EdgeInsets.only(right: 177),
                       child:
                           titleTextField("Enter Product Name", nameController),
                     ),
@@ -375,6 +371,9 @@ class _FinishProductPageState extends State<FinishProductPage> {
                 context: context,
                 buttonText: "Submit",
                 function: () async {
+                  setState(() {
+                    isLoading = true;
+                  });
                   String rawData = "";
                   for (int i = 0; i < name.length; i++) {
                     rawData = rawData + name[i] + "_" + qnt[i] + "}";
@@ -393,6 +392,20 @@ class _FinishProductPageState extends State<FinishProductPage> {
 
                   await post(url, body: body).then((value) {
                     print("Value :: ${value.body}");
+                    if (value.body.toString() == "done") {
+                      setState(() {
+                        isLoading = false;
+                      });
+                      showSnackbar(
+                          context,
+                          "${nameController.text} added successfully",
+                          Colors.green);
+                    } else {
+                      setState(() {
+                        isLoading = false;
+                      });
+                      showSnackbar(context, "${value.body}", Colors.red);
+                    }
                   });
                 },
                 left: 0,
@@ -425,7 +438,7 @@ class _FinishProductPageState extends State<FinishProductPage> {
         DataCell(Text("${index + 1}")),
         DataCell(Text("${finishProductName[index]}")),
         DataCell(Text("${finishQnt[index]}")),
-        DataCell(Text("${srNo[index]}")),
+        // DataCell(Text("${srNo[index]}")),
         DataCell(Text("${date[index]}")),
         DataCell(
           InkWell(
@@ -575,7 +588,73 @@ class _FinishProductPageState extends State<FinishProductPage> {
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(right: 144),
-                        child: titleTextField("Date", dateController),
+                        child: Column(
+                          children: [
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 18),
+                                child: Text(
+                                  "Date",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: colorBlack5,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              height: 26,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                  color: Color(0xfff0f0f0),
+                                  borderRadius: BorderRadius.circular(0)),
+                              margin:
+                                  EdgeInsets.only(left: 18, right: 18, top: 6),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 8,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 14),
+                                      child: Text(
+                                        dateString,
+                                        style: TextStyle(fontSize: 18),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                      flex: 2,
+                                      child: InkWell(
+                                        splashColor: Colors.white,
+                                        onTap: () {
+                                          Datefunction();
+                                        },
+                                        child: Container(
+                                            width: double.infinity,
+                                            height: 46,
+                                            decoration: BoxDecoration(
+                                                color: colorBlack5,
+                                                borderRadius: BorderRadius.only(
+                                                    topRight:
+                                                        Radius.circular(0),
+                                                    bottomRight:
+                                                        Radius.circular(0))),
+                                            margin: EdgeInsets.only(
+                                                left: 0, right: 0),
+                                            child: Center(
+                                                child: Text(
+                                              "Add Date",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.white),
+                                            ))),
+                                      )),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -587,16 +666,12 @@ class _FinishProductPageState extends State<FinishProductPage> {
                   children: [
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.only(right: 144),
+                        padding: const EdgeInsets.only(right: 177),
                         child: titleTextField("Quantity", finishQntController),
                       ),
                     ),
                     Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 144),
-                        child: titleTextField(
-                            "Serial Number", serialNumberController),
-                      ),
+                      child: Container(),
                     ),
                   ],
                 ),
@@ -678,24 +753,30 @@ class _FinishProductPageState extends State<FinishProductPage> {
                     ),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 22, left: 0, right: 14),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        columnSpacing: 28.0,
-                        columns: List.generate(title1.length, (index) {
-                          return DataColumn(
-                              label: Text(title1[index].toString()));
-                        }),
-                        rows: List.generate(finishProductName.length,
-                            (index) => _getDataRow1(index)),
+                finishProductName.length > 0
+                    ? Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              top: 22, left: 0, right: 14),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              columnSpacing: 28.0,
+                              columns: List.generate(title1.length, (index) {
+                                return DataColumn(
+                                    label: Text(title1[index].toString()));
+                              }),
+                              rows: List.generate(finishProductName.length,
+                                  (index) => _getDataRow1(index)),
+                            ),
+                          ),
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.only(top: 111),
+                        child: loadingWidget(),
                       ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -713,56 +794,89 @@ class _FinishProductPageState extends State<FinishProductPage> {
                 isIcon: true,
                 context: context,
                 buttonText: "Submit",
-                function: () {
-                  if (validateField(context, dateController) &&
-                      validateField(context, finishQntController) &&
-                      validateField(context, serialNumberController)) {
+                function: () async {
+                  if (validateField(context, finishQntController)) {
                     setState(() {
                       isLoading = true;
                     });
                     for (int i = 0; i < rawMaterialNameDatabase.length; i++) {
                       Uri url = Uri.parse(APIUrl.mainUrl +
                           APIUrl.availableRaw +
-                          "?name=${rawMaterialNameDatabase[i]}");
-                      get(url).then((value) {
+                          "?name=${rawMaterialNameDatabase[i]}&date=$dateString");
+                      await get(url).then((value) async {
                         print("Raw Materials :: ${value.body}");
-                        int tt = int.parse(value.body) -
-                            int.parse(rawMaterialQntDatabase[i]);
-                        Uri url = Uri.parse(APIUrl.mainUrl +
-                            APIUrl.updateQuantityRaw +
-                            "?name=${rawMaterialNameDatabase[i]}&quantity=$tt");
-                        post(url).then((value) {
-                          print("Raw Materials Update :: ${value.body}");
-                          if (value.body.toString() == "done") {
-                            if (i == rawMaterialNameDatabase.length - 1) {
-                              final bytes =
-                                  Io.File('$filePath').readAsBytesSync();
-                              String img64 = base64Encode(bytes);
-                              //upload to Database
-                              final body = {
-                                "name": "$finishProductDropdown",
-                                "serial_number":
-                                    "${serialNumberController.text}",
-                                "quantity": "${finishQntController.text}",
-                                "in_date": "${dateController.text}",
-                                "bill_photo": "$img64",
-                              };
 
-                              Uri url = Uri.parse(
-                                  APIUrl.mainUrl + APIUrl.finalProductUpload);
-                              post(url, body: body).then((value) {
-                                print("finalProductUpload :: ${value.body}");
-                                dateController.clear();
-                                finishQntController.clear();
-                                serialNumberController.clear();
-                                getAllFinalProducts();
-                              });
+                        if (value.body.contains("Error description")) {
+                          //again
+
+                          for (int k = 0; k < 5; k++) {
+                            DateTime newDate = DateTime(
+                                    int.parse(dateString.split("-")[2]),
+                                    int.parse(dateString.split("-")[1]),
+                                    int.parse(dateString.split("-")[0]))
+                                .subtract(Duration(days: k));
+                            //
+
+                            Uri url = Uri.parse(APIUrl.mainUrl +
+                                APIUrl.availableRaw +
+                                "?name=${rawMaterialNameDatabase[i]}&date=${newDate.day}-${newDate.month}-${newDate.year}");
+                            print("Error description Url :: $url");
+
+                            await get(url).then((value) {
+                              if (!(value.body.contains("Error description"))) {
+                                k = 10;
+                                // allAttemptDone = false;
+                                print(
+                                    "value.body of function 1 :: ${value.body}");
+                                function1(
+                                    value.body,
+                                    rawMaterialQntDatabase[i],
+                                    rawMaterialNameDatabase[i],
+                                    "${newDate.day}-${newDate.month}-${newDate.year}");
+                              }
+                            });
+
+                            if (k == 4) {
+                              function1(
+                                  "0",
+                                  rawMaterialQntDatabase[i],
+                                  rawMaterialNameDatabase[i],
+                                  "${newDate.day}-${newDate.month}-${newDate.year}");
                             }
+                            //
                           }
-                        });
+                        } else {
+                          function1(value.body, rawMaterialQntDatabase[i],
+                              rawMaterialNameDatabase[i], "$dateString");
+                        }
+                        if (i == rawMaterialNameDatabase.length - 1) {
+                          Future.delayed(const Duration(seconds: 4), () {
+                            final bytes =
+                                Io.File('$filePath').readAsBytesSync();
+                            String img64 = base64Encode(bytes);
+                            //upload to Database
+                            final body = {
+                              "name": "$finishProductDropdown",
+                              "serial_number": "no data",
+                              "quantity": "${finishQntController.text}",
+                              "in_date": "$dateString",
+                              "bill_photo": "$img64",
+                            };
+
+                            Uri url = Uri.parse(
+                                APIUrl.mainUrl + APIUrl.finalProductUpload);
+                            post(url, body: body).then((value) {
+                              print("finalProductUpload :: ${value.body}");
+                              dateController.clear();
+                              finishQntController.clear();
+                              serialNumberController.clear();
+                              getAllFinalProducts();
+                            });
+                          });
+                        }
                       });
                     }
-                    date.add(dateController.text);
+                    date.add(dateString);
                     finishQnt.add(finishQntController.text);
                     srNo.add(serialNumberController.text);
 
@@ -842,6 +956,13 @@ class _FinishProductPageState extends State<FinishProductPage> {
           Divider(
             thickness: 1,
           ),
+          Visibility(
+            visible: finishProductRawData.length > 0 ? false : true,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 111),
+              child: loadingWidget(),
+            ),
+          ),
           Flexible(
             child: ListView.builder(
                 itemCount: finishProductList.length - 1,
@@ -882,9 +1003,18 @@ class _FinishProductPageState extends State<FinishProductPage> {
                                     ],
                                   ),
                                   SizedBox(
-                                    height: 200,
+                                    height: 26 *
+                                        finishProductRawData[index1]
+                                            .toString()
+                                            .split("}")
+                                            .length
+                                            .toDouble(),
                                     child: ListView.builder(
-                                        itemCount: finishProductRawData.length,
+                                        itemCount: finishProductRawData[index1]
+                                                .toString()
+                                                .split("}")
+                                                .length -
+                                            1,
                                         itemBuilder: (context, index) {
                                           return Padding(
                                             padding:
@@ -932,7 +1062,9 @@ class _FinishProductPageState extends State<FinishProductPage> {
       print("Len :: $len");
       for (int i = 0; i < len; i++) {
         setState(() {
-          rawMaterialList.add(jsonData[i]["name"]);
+          if (!(rawMaterialList.contains("${jsonData[i]["name"]}"))) {
+            rawMaterialList.add(jsonData[i]["name"]);
+          }
         });
       }
     });
@@ -984,21 +1116,125 @@ class _FinishProductPageState extends State<FinishProductPage> {
     });
   }
 
+  Datefunction() async {
+    print("Call");
+    DatePicker.showDatePicker(context,
+        showTitleActions: true,
+        theme: DatePickerTheme(
+            headerColor: colorDark,
+            containerHeight: 333,
+            // backgroundColor: colorCardWhite,
+            itemStyle: TextStyle(
+                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
+            doneStyle: TextStyle(color: Colors.white, fontSize: 16),
+            cancelStyle: TextStyle(color: Colors.white, fontSize: 16)),
+        minTime: DateTime(DateTime.now().year - 2),
+        maxTime: DateTime(DateTime.now().year + 2), onChanged: (date) {
+      print('change $date');
+      setState(() {
+        dateString = "${date.day}-${date.month}-${date.year}";
+        // dateString = date.toString().split(" ")[0].toString();
+      });
+    }, onConfirm: (date) {
+      print('confirm $date');
+      setState(() {
+        dateString = "${date.day}-${date.month}-${date.year}";
+      });
+    }, currentTime: DateTime.now(), locale: LocaleType.en);
+  }
+
   String getNameOfRaw(int index, int index1) {
-    // print("getNameOfRaw :: ${finishProductRawData[index].toString()}");
-    print("Index getNameOfRaw :: $index");
+    print("$index--------------------------$index1");
+    // print("Index Name :: $index");
+    // print("Index1 Name :: $index1");
 
     print(
         "getNameOfRaw :: ${finishProductRawData[index1].toString().split("}")[index].toString().split("_")[0]}");
+    print("=================================================");
+
+    // String temp =
+    // "${finishProductRawData[index1].toString().split("}")[index].toString().split("_")[0]}";
 
     return "${finishProductRawData[index1].toString().split("}")[index].toString().split("_")[0]}";
+    // return "-";
   }
 
   String getQntOfRaw(int index, int index1) {
-    print("Index getQntOfRaw :: $index");
-    print(
-        "getNameOfRawQNt :: ${finishProductRawData[index1].toString().split("}")[index].toString().split("_")[1]}");
-
+    // print("Index Qnt :: $index");
+    // print("Index1 Qnt :: $index1");
+    // print(
+    //     "getNameOfRawQNt :: ${finishProductRawData[index1].toString().split("}")[index].toString().split("_")[1]}");
+    // String temp =
     return "${finishProductRawData[index1].toString().split("}")[index].toString().split("_")[1]}";
+    // return temp != null ? temp : "-";
+    // return "-";
+  }
+
+  Future<void> function1(
+      String body, String rawQnt, String rawName, String newDate) async {
+    int tt = int.parse(body) - int.parse(rawQnt);
+    Uri url = Uri.parse(APIUrl.mainUrl +
+        APIUrl.updateQuantityRaw +
+        "?name=$rawName&quantity=$tt&date=$newDate");
+    await post(url).then((value) async {
+      print("Raw Materials Update :: ${value.body}");
+
+      //
+      Uri url1 = Uri.parse(APIUrl.mainUrl +
+          APIUrl.getAvalailablOut +
+          "?name=$rawName&date=$dateString");
+      print("Available Url :: $url1");
+      await get(url1).then((value) async {
+        print("Get Available :: ${value.body}");
+        //
+        if (value.body.contains("Error description")) {
+          //again
+
+          for (int k = 0; k < 5; k++) {
+            DateTime newDate = DateTime(
+                    int.parse(dateString.split("-")[2]),
+                    int.parse(dateString.split("-")[1]),
+                    int.parse(dateString.split("-")[0]))
+                .subtract(Duration(days: k));
+
+            Uri url1 = Uri.parse(APIUrl.mainUrl +
+                APIUrl.getAvalailablOut +
+                "?name=$rawName&date=${newDate.day}-${newDate.month}-${newDate.year}");
+            print("Get Available Url :: $url1");
+            await get(url1).then((value) {
+              print("Get Available :: ${value.body}");
+
+              if (!(value.body.contains("Error description"))) {
+                k = 10;
+                function2(value.body, rawQnt, rawName,
+                    "${newDate.day}-${newDate.month}-${newDate.year}");
+              }
+            });
+            if (k == 4) {
+              function2("0", rawQnt, rawName,
+                  "${newDate.day}-${newDate.month}-${newDate.year}");
+            }
+          }
+        } else {
+          function2(value.body, rawQnt, rawName, "$dateString");
+        }
+
+        // function2(value, rawQnt, rawName);
+      });
+    });
+  }
+
+  void function2(String body, String rawQnt, String rawName, String newDate) {
+    int outQnt = int.parse(body) + int.parse(rawQnt);
+
+    print("outQnt :: $outQnt");
+
+    Uri url1 = Uri.parse(APIUrl.mainUrl +
+        APIUrl.updateOut +
+        "?name=$rawName&date=$newDate&out=$outQnt");
+    print("Available Url 2 :: $url1");
+    post(url1).then((value) {
+      print("Post Available 2  :: ${value.body}");
+    });
   }
 }

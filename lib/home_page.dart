@@ -1,3 +1,4 @@
+import 'package:dustbin/Tab%20Pages/attendence_page.dart';
 import 'package:dustbin/Tab%20Pages/custumer_details_page.dart';
 import 'package:dustbin/Tab%20Pages/finish_product_page.dart';
 import 'package:dustbin/Tab%20Pages/generate_bill_page.dart';
@@ -24,29 +25,14 @@ class _HomePageState extends State<HomePage> {
     "Generate Bill",
     "Customers",
     "Sales Details",
-    "Employee Details"
+    "Employee Details",
+    "Employee Attendance",
   ];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    print("Init");
-    // final file = OpenFilePicker()
-    //   ..filterSpecification = {
-    //     'Word Document (*.doc)': '*.doc',
-    //     'Web Page (*.htm; *.html)': '*.htm;*.html',
-    //     'Text Document (*.txt)': '*.txt',
-    //     'All Files': '*.*'
-    //   }
-    //   ..defaultFilterIndex = 0
-    //   ..defaultExtension = 'doc'
-    //   ..title = 'Select a document';
-    //
-    // final result = file.getFile();
-    // if (result != null) {
-    //   print(result.path);
-    // }
   }
 
   @override
@@ -62,7 +48,7 @@ class _HomePageState extends State<HomePage> {
               margin: EdgeInsets.zero,
               height: MediaQuery.of(context).size.height,
               child: ListView.builder(
-                  itemCount: 6,
+                  itemCount: buttonArray.length,
                   itemBuilder: (context, index) {
                     return InkWell(
                       onTap: () {
@@ -123,6 +109,9 @@ class _HomePageState extends State<HomePage> {
         break;
       case 6:
         return EmplyoeeDetailsPage();
+        break;
+      case 7:
+        return AttendancePage();
         break;
     }
     return TabHomePage();

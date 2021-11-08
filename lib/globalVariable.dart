@@ -136,9 +136,13 @@ class APIUrl {
   static String postCustomer = "upload_customer.php";
   static String getCustomer = "get_customer.php";
 
-  //get and upload customer detaiks
+  //get and upload customer details
   static String postEmployee = "upload_employee.php";
   static String getEmployee = "get_employee.php";
+
+  //get avalailable out
+  static String getAvalailablOut = "get_availableOut.php";
+  static String updateOut = "update_out.php";
 }
 
 Future<String> createOrderMessage() async {
@@ -154,11 +158,10 @@ Widget loadingWidget([String msg = "No details were found."]) {
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.network(
-                    "https://cdn-icons-png.flaticon.com/512/2345/2345152.png",
-                    width: 155,
-                    height: 155,
-                    color: colorDark,
+                  Icon(
+                    Icons.hourglass_empty_rounded,
+                    size: 44,
+                    color: colorBlack5,
                   ),
                   SizedBox(
                     height: 22,

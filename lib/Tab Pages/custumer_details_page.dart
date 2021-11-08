@@ -4,6 +4,7 @@ import 'package:dustbin/Widgets/button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import '../globalVariable.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class CustumerDetailsPage extends StatefulWidget {
   @override
@@ -17,7 +18,10 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
   final phoneNumberController = TextEditingController();
   final emailController = TextEditingController();
   final gstNUmberController = TextEditingController();
-
+  final stateController = TextEditingController();
+  final cityController = TextEditingController();
+  final companyNameController = TextEditingController();
+  String dateString = "DD-MM-YYYY";
   var name = [];
   var address = [];
   var date = [];
@@ -80,7 +84,69 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(right: 144),
-                  child: titleTextField("Date", dateController),
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 18),
+                          child: Text(
+                            "Date",
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: colorBlack5,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        height: 26,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            color: Color(0xfff0f0f0),
+                            borderRadius: BorderRadius.circular(0)),
+                        margin: EdgeInsets.only(left: 18, right: 18, top: 6),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 8,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 14),
+                                child: Text(
+                                  dateString,
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                                flex: 2,
+                                child: InkWell(
+                                  splashColor: Colors.white,
+                                  onTap: () {
+                                    Datefunction();
+                                  },
+                                  child: Container(
+                                      width: double.infinity,
+                                      height: 46,
+                                      decoration: BoxDecoration(
+                                          color: colorBlack5,
+                                          borderRadius: BorderRadius.only(
+                                              topRight: Radius.circular(0),
+                                              bottomRight: Radius.circular(0))),
+                                      margin:
+                                          EdgeInsets.only(left: 0, right: 0),
+                                      child: Center(
+                                          child: Text(
+                                        "Add Date",
+                                        style: TextStyle(
+                                            fontSize: 12, color: Colors.white),
+                                      ))),
+                                )),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               Expanded(
@@ -111,6 +177,41 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
             ],
           ),
           SizedBox(
+            height: 18,
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 144),
+                  child: titleTextField("State", stateController),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 144),
+                  child: titleTextField("City", cityController),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 18,
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 144),
+                  child: titleTextField("Company Name", companyNameController),
+                ),
+              ),
+              Expanded(
+                child: Container(),
+              ),
+            ],
+          ),
+          SizedBox(
             height: 22,
           ),
           Padding(
@@ -128,7 +229,7 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
                 function: () async {
                   final body = {
                     "name": "${nameController.text}",
-                    "date": "${dateController.text}",
+                    "date": "${dateString}",
                     "gst": "${gstNUmberController.text}",
                     "address": "${addressController.text}",
                     "phone": "${phoneNumberController.text}",
@@ -258,5 +359,32 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
         // qnt.reversed;
       });
     });
+  }
+
+  Datefunction() async {
+    print("Call");
+    DatePicker.showDatePicker(context,
+        showTitleActions: true,
+        theme: DatePickerTheme(
+            headerColor: colorDark,
+            containerHeight: 333,
+            // backgroundColor: colorCardWhite,
+            itemStyle: TextStyle(
+                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
+            doneStyle: TextStyle(color: Colors.white, fontSize: 16),
+            cancelStyle: TextStyle(color: Colors.white, fontSize: 16)),
+        minTime: DateTime(DateTime.now().year - 2),
+        maxTime: DateTime(DateTime.now().year + 2), onChanged: (date) {
+      print('change $date');
+      setState(() {
+        dateString = "${date.day}-${date.month}-${date.year}";
+        // dateString = date.toString().split(" ")[0].toString();
+      });
+    }, onConfirm: (date) {
+      print('confirm $date');
+      setState(() {
+        dateString = "${date.day}-${date.month}-${date.year}";
+      });
+    }, currentTime: DateTime.now(), locale: LocaleType.en);
   }
 }

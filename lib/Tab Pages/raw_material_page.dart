@@ -7,6 +7,8 @@ import 'package:filepicker_windows/filepicker_windows.dart';
 import 'package:http/http.dart';
 import 'dart:io' as Io;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import '../globalVariable.dart';
 
 class RawMaterialPage extends StatefulWidget {
   @override
@@ -23,20 +25,24 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
   var title = [
     "Sr. No.",
     "Name",
-    "Quantity",
+    "In",
+    "Out",
+    "Remaining",
     "Part Number",
     "Date",
     "Bill Photo"
   ];
-  var values = ["Sr. No.", "Name", "Quantity", "Part Number", "Date"];
   var name = [];
   var qnt = [];
   var partNumber = [];
   var photo = [];
   var date = [];
+  var remaining = [];
+  var outArray = [];
   String filePath = " ";
   Io.File result;
   bool isLoading = false;
+  String dateString = "DD-MM-YYYY";
 
   @override
   void initState() {
@@ -74,7 +80,71 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(right: 144),
-                    child: titleTextField("Date", dateController),
+                    child: Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 18),
+                            child: Text(
+                              "Date",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: colorBlack5,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          height: 26,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                              color: Color(0xfff0f0f0),
+                              borderRadius: BorderRadius.circular(0)),
+                          margin: EdgeInsets.only(left: 18, right: 18, top: 6),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 8,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 14),
+                                  child: Text(
+                                    dateString,
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                  flex: 2,
+                                  child: InkWell(
+                                    splashColor: Colors.white,
+                                    onTap: () {
+                                      Datefunction();
+                                    },
+                                    child: Container(
+                                        width: double.infinity,
+                                        height: 46,
+                                        decoration: BoxDecoration(
+                                            color: colorBlack5,
+                                            borderRadius: BorderRadius.only(
+                                                topRight: Radius.circular(0),
+                                                bottomRight:
+                                                    Radius.circular(0))),
+                                        margin:
+                                            EdgeInsets.only(left: 0, right: 0),
+                                        child: Center(
+                                            child: Text(
+                                          "Add Date",
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.white),
+                                        ))),
+                                  )),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -196,23 +266,30 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
                 ),
               ),
             ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 22, left: 0, right: 14),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columnSpacing: 46.0,
-                    columns: List.generate(title.length, (index) {
-                      return DataColumn(label: Text(title[index].toString()));
-                    }),
-                    rows: List.generate(
-                        name.length, (index) => _getDataRow(index)),
+            name.length > 0
+                ? Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.only(top: 22, left: 0, right: 14),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          columnSpacing: 46.0,
+                          columns: List.generate(title.length, (index) {
+                            return DataColumn(
+                                label: Text(title[index].toString()));
+                          }),
+                          rows: List.generate(
+                              name.length, (index) => _getDataRow(index)),
+                        ),
+                      ),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.only(top: 111),
+                    child: loadingWidget(),
                   ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -228,6 +305,8 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
           child: Text("${name[index]}"),
         )),
         DataCell(Text("${qnt[index]}")),
+        DataCell(Text("${outArray[index]}")),
+        DataCell(Text("${remaining[index]}")),
         DataCell(Text("${partNumber[index]}")),
         DataCell(Text("${date[index]}")),
         DataCell(
@@ -249,8 +328,7 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
   uploadFunction() async {
     if (validateField(context, nameController) &&
         validateField(context, qntController) &&
-        validateField(context, partNumberController) &&
-        validateField(context, dateController)) {
+        validateField(context, partNumberController)) {
       setState(() {
         isLoading = true;
       });
@@ -262,9 +340,13 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
         "name": "${nameController.text}",
         "part_number": "${partNumberController.text}",
         "quantity": "${qntController.text}",
-        "in_date": "${dateController.text}",
+        "in_date": "$dateString",
+        "out": "0",
+        "total": "${qntController.text}",
         "bill_photo": "$img64",
       };
+
+      print("Raw Body :: $body");
       Uri url = Uri.parse(APIUrl.mainUrl + APIUrl.uploadRaw);
       print("URL :: $url");
 
@@ -285,6 +367,8 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
     qnt.clear();
     partNumber.clear();
     date.clear();
+    outArray.clear();
+    remaining.clear();
     Uri url = Uri.parse(APIUrl.mainUrl + APIUrl.getRaw);
     get(url).then((value) {
       print("Raw Materials :: ${value.body}");
@@ -296,16 +380,40 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
         partNumber.add(jsonData[i]["part_number"]);
         date.add(jsonData[i]["in_date"]);
         photo.add(jsonData[i]["bill_photo"]);
+        outArray.add(jsonData[i]["out"]);
+        remaining.add(jsonData[i]["total"]);
         setState(() {
           isLoading = false;
         });
       }
-      setState(() {
-        name.reversed;
-        qnt.reversed;
-        qnt.reversed;
-        qnt.reversed;
-      });
+      setState(() {});
     });
+  }
+
+  Datefunction() async {
+    print("Call");
+    DatePicker.showDatePicker(context,
+        showTitleActions: true,
+        theme: DatePickerTheme(
+            headerColor: colorDark,
+            containerHeight: 333,
+            // backgroundColor: colorCardWhite,
+            itemStyle: TextStyle(
+                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
+            doneStyle: TextStyle(color: Colors.white, fontSize: 16),
+            cancelStyle: TextStyle(color: Colors.white, fontSize: 16)),
+        minTime: DateTime(DateTime.now().year - 2),
+        maxTime: DateTime(DateTime.now().year + 2), onChanged: (date) {
+      print('change $date');
+      setState(() {
+        dateString = "${date.day}-${date.month}-${date.year}";
+        // dateString = date.toString().split(" ")[0].toString();
+      });
+    }, onConfirm: (date) {
+      print('confirm $date');
+      setState(() {
+        dateString = "${date.day}-${date.month}-${date.year}";
+      });
+    }, currentTime: DateTime.now(), locale: LocaleType.en);
   }
 }
