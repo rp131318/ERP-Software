@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
     "Customers",
     "Sales Details",
     "Employee Details",
-    "Employee Attendance",
+    "Employee Attn.",
   ];
 
   @override

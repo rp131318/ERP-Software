@@ -28,6 +28,9 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
   var phoneNumber = [];
   var email = [];
   var gst = [];
+  var state = [];
+  var city = [];
+  var company = [];
   var title = [
     "Sr. No.",
     "Name",
@@ -35,6 +38,9 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
     "Phone Number",
     "Email",
     "GST",
+    "State",
+    "City",
+    "Company",
     "Date"
   ];
 
@@ -229,11 +235,14 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
                 function: () async {
                   final body = {
                     "name": "${nameController.text}",
-                    "date": "${dateString}",
+                    "date": "$dateString",
                     "gst": "${gstNUmberController.text}",
                     "address": "${addressController.text}",
                     "phone": "${phoneNumberController.text}",
                     "email": "${emailController.text}",
+                    "state": "${stateController.text}",
+                    "comname": "${companyNameController.text}",
+                    "city": "${cityController.text}",
                   };
                   Uri url = Uri.parse(APIUrl.mainUrl + APIUrl.postCustomer);
                   print("URL :: $url");
@@ -245,7 +254,7 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
                   // $phone_number = $_POST['phone'];
                   // $email = $_POST['email'];
 
-                  await post(url, body: body).then((value) {
+                  await post(url, body: jsonEncode(body)).then((value) {
                     print("Value :: ${value.body}");
                     if (value.body.toString() == "done") {
                       getCustomer();
@@ -314,6 +323,9 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
         DataCell(Text("${phoneNumber[index]}")),
         DataCell(Text("${email[index]}")),
         DataCell(Text("${gst[index]}")),
+        DataCell(Text("${state[index]}")),
+        DataCell(Text("${city[index]}")),
+        DataCell(Text("${company[index]}")),
         DataCell(Text("${date[index]}")),
       ],
     );
@@ -348,6 +360,9 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
         date.add(jsonData[i]["date"]);
         phoneNumber.add(jsonData[i]["phone_number"]);
         email.add(jsonData[i]["email"]);
+        state.add(jsonData[i]["state"]);
+        city.add(jsonData[i]["city"]);
+        company.add(jsonData[i]["com_name"]);
         setState(() {
           // isLoading = false;
         });

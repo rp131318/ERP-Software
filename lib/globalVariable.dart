@@ -39,6 +39,7 @@ const Color colorCardWhite = Color(0xFFf3f3f3);
 const Color colorCardLight = Color(0xffeff4ff);
 // const Color colorCard = Color(0xfff3f3f3);
 const Color colorBlack5 = Color(0xFF404145);
+// const Color colorBlack5 = Color(0xFFC1C1C1);
 // const Color colorGreen = Color(0xFF009000);
 const Color colorDisable = Color(0xffdbd9db);
 const Color colorUnSelected = Color(0xffF5F5F5);
@@ -96,7 +97,9 @@ Widget buildTitle(String text) {
 
 class APIUrl {
   static String mainUrl =
-      "http://breathemedicalsystems.com/inventory_management/";
+      "https://breathemedicalsystems.com/inventory_management/";
+
+  // http://breathemedicalsystems.com/inventory_management/get_rawdetails.php
 
   //Raw material get and post
   static String uploadRaw = "upload_rawMaterials.php";
@@ -143,6 +146,9 @@ class APIUrl {
   //get avalailable out
   static String getAvalailablOut = "get_availableOut.php";
   static String updateOut = "update_out.php";
+  static String postAttendance = "attendence_post.php";
+  static String getAttendance = "attendence_get.php";
+  static String updateAttendance = "attendence_update.php";
 }
 
 Future<String> createOrderMessage() async {

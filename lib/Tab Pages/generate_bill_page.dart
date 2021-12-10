@@ -36,9 +36,9 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    // getCustomer();
-    // getAllFinalProducts();
-    pdfTrial();
+    getCustomer();
+    getAllFinalProducts();
+    // pdfTrial();
   }
 
   @override
@@ -474,18 +474,336 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
 
   Future<void> pdfTrial() async {
     final pdf = pw.Document();
-    pdf.addPage(pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        build: (pw.Context context) {
-          return pw.Center(
-            child: pw.Text("Hello World"),
-          ); // Center
-        }));
+    pdf.addPage(
+      pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              children: [
+                pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Expanded(
+                      child: pw.Column(
+                        mainAxisSize: pw.MainAxisSize.min,
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
+                        children: [
+                          pw.Text(
+                            "Breath Medical System",
+                            style: pw.TextStyle(
+                                fontSize: 16,
+                                fontWeight: pw.FontWeight.bold,
+                                color: PdfColor.fromHex("#ECBF1F")),
+                          ),
+                          pw.SizedBox(height: 12),
+                          pw.Text(
+                            "15, hariom nagar pandesara,\nnear govalak road,\nSurat-394210, Gujarat, India",
+                            style: pw.TextStyle(fontSize: 12),
+                          ),
+                          pw.SizedBox(height: 12),
+                          pw.Row(
+                            children: [
+                              pw.Expanded(
+                                child: pw.Container(
+                                  color: PdfColor.fromHex("#404145"),
+                                  padding: pw.EdgeInsets.only(left: 12),
+                                  child: pw.Text(
+                                    "BILL TO",
+                                    style: pw.TextStyle(
+                                      color: PdfColor.fromHex("#FFFFFF"),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              pw.SizedBox(width: 22),
+                            ],
+                          ),
+                          pw.SizedBox(height: 12),
+                          pw.Row(
+                            children: [
+                              pw.Expanded(
+                                child: pw.Container(
+                                  // color: PdfColor.fromHex("#404145"),
+                                  child: pw.Text(
+                                    "Name\nCompany Name\nAddress\nSurat Gujarat 394221\nEmail",
+                                    style: pw.TextStyle(),
+                                  ),
+                                ),
+                              ),
+                              pw.SizedBox(width: 22),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    pw.Expanded(
+                      child: pw.Column(
+                        mainAxisSize: pw.MainAxisSize.min,
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Padding(
+                            padding: pw.EdgeInsets.only(left: 22),
+                            child: pw.Text(
+                              "INVOICE",
+                              style: pw.TextStyle(
+                                  fontSize: 18, fontWeight: pw.FontWeight.bold),
+                            ),
+                          ),
+                          pw.SizedBox(height: 63),
+                          pw.Row(
+                            children: [
+                              pw.SizedBox(width: 22),
+                              pw.Expanded(
+                                child: pw.Container(
+                                  color: PdfColor.fromHex("#404145"),
+                                  child: pw.Center(
+                                    child: pw.Text(
+                                      "INVOICE #",
+                                      style: pw.TextStyle(
+                                        color: PdfColor.fromHex("#FFFFFF"),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              pw.SizedBox(height: 12),
+                              pw.Expanded(
+                                child: pw.Container(
+                                  color: PdfColor.fromHex("#404145"),
+                                  child: pw.Center(
+                                    child: pw.Text(
+                                      "DATE",
+                                      style: pw.TextStyle(
+                                        color: PdfColor.fromHex("#FFFFFF"),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          pw.SizedBox(height: 12),
+                          pw.Row(
+                            children: [
+                              pw.Expanded(
+                                child: pw.Container(
+                                  // color: PdfColor.fromHex("#404145"),
+                                  child: pw.Center(
+                                    child: pw.Text(
+                                      "204",
+                                      style: pw.TextStyle(),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              pw.SizedBox(height: 12),
+                              pw.Expanded(
+                                child: pw.Container(
+                                  // color: PdfColor.fromHex("#404145"),
+                                  child: pw.Center(
+                                    child: pw.Text(
+                                      "11-11-2021",
+                                      style: pw.TextStyle(),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                pw.SizedBox(height: 22),
+                pw.ListView.builder(
+                    itemCount: 6,
+                    itemBuilder: (context, index) {
+                      return index == 0
+                          ? pw.Row(
+                              children: [
+                                pw.Expanded(
+                                  flex: 4,
+                                  child: pw.Container(
+                                    color: PdfColor.fromHex("#404145"),
+                                    child: pw.Text(
+                                      "DESCRIPTION",
+                                      style: pw.TextStyle(
+                                        color: PdfColor.fromHex("#FFFFFF"),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                pw.SizedBox(height: 12),
+                                pw.Expanded(
+                                  flex: 1,
+                                  child: pw.Container(
+                                    color: PdfColor.fromHex("#404145"),
+                                    child: pw.Center(
+                                      child: pw.Text(
+                                        "QTY",
+                                        style: pw.TextStyle(
+                                          color: PdfColor.fromHex("#FFFFFF"),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                pw.SizedBox(height: 12),
+                                pw.Expanded(
+                                  flex: 2,
+                                  child: pw.Container(
+                                    color: PdfColor.fromHex("#404145"),
+                                    child: pw.Center(
+                                      child: pw.Text(
+                                        "UNIT PRICE",
+                                        style: pw.TextStyle(
+                                          color: PdfColor.fromHex("#FFFFFF"),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                pw.SizedBox(height: 12),
+                                pw.Expanded(
+                                  flex: 3,
+                                  child: pw.Container(
+                                    color: PdfColor.fromHex("#404145"),
+                                    child: pw.Center(
+                                      child: pw.Text(
+                                        "AMOUNT",
+                                        style: pw.TextStyle(
+                                          color: PdfColor.fromHex("#FFFFFF"),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : pw.Padding(
+                              padding: const pw.EdgeInsets.only(top: 8),
+                              child: pw.Column(
+                                children: [
+                                  pw.Row(
+                                    children: [
+                                      pw.Expanded(
+                                        flex: 4,
+                                        child: pw.Container(
+                                          // color: PdfColor.fromHex("#404145"),
+                                          child: pw.Text(
+                                            "7 inch display baby warmer",
+                                            style: pw.TextStyle(
+                                                // color: PdfColor.fromHex("#FFFFFF"),
+                                                ),
+                                          ),
+                                        ),
+                                      ),
+                                      pw.SizedBox(height: 12),
+                                      pw.Expanded(
+                                        flex: 1,
+                                        child: pw.Container(
+                                          // color: PdfColor.fromHex("#404145"),
+                                          child: pw.Center(
+                                            child: pw.Text(
+                                              "2",
+                                              style: pw.TextStyle(
+                                                  // color: PdfColor.fromHex("#FFFFFF"),
+                                                  ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      pw.SizedBox(height: 12),
+                                      pw.Expanded(
+                                        flex: 2,
+                                        child: pw.Container(
+                                          // color: PdfColor.fromHex("#404145"),
+                                          child: pw.Center(
+                                            child: pw.Text(
+                                              "16000",
+                                              style: pw.TextStyle(
+                                                  // color: PdfColor.fromHex("#FFFFFF"),
+                                                  ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      pw.SizedBox(height: 12),
+                                      pw.Expanded(
+                                        flex: 3,
+                                        child: pw.Container(
+                                          // color: PdfColor.fromHex("#404145"),
+                                          child: pw.Center(
+                                            child: pw.Text(
+                                              "32000",
+                                              style: pw.TextStyle(
+                                                  // color: PdfColor.fromHex("#FFFFFF"),
+                                                  ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  pw.Divider(
+                                    thickness: 0.6,
+                                  ),
+                                ],
+                              ),
+                            );
+                    }),
+                pw.Row(
+                  children: [
+                    pw.Expanded(
+                      flex: 6,
+                      child: pw.Container(),
+                    ),
+                    pw.Expanded(
+                      flex: 4,
+                      child: pw.Row(children: [
+                        pw.Expanded(
+                          child: pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.start,
+                              children: [
+                                pw.Text("SUBTOTAL"),
+                                pw.Text("GST %"),
+                                pw.Text("GST"),
+                                pw.SizedBox(height: 4),
+                                pw.Text("TOTAL",
+                                    style: pw.TextStyle(
+                                        fontWeight: pw.FontWeight.bold)),
+                              ]),
+                        ),
+                        pw.Expanded(
+                          child: pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.end,
+                              children: [
+                                pw.Text("32000"),
+                                pw.Text("18%"),
+                                pw.Text("5760"),
+                                pw.SizedBox(height: 4),
+                                pw.Text("37760",
+                                    style: pw.TextStyle(
+                                        fontWeight: pw.FontWeight.bold)),
+                              ]),
+                        ),
+                      ]),
+                    ),
+                  ],
+                )
+              ],
+            ); // Center
+          }),
+    );
 
     List<int> bytes = await pdf.save();
     // Uri url = Uri.parse("F:\\FILES\\Flutter Project\\ERP Software");
     final appDocDir = Directory.current.path;
     print("Path Final :: $appDocDir");
+    final milli = "trial";
     // final path = (await ExtStorage.getExternalStoragePublicDirectory(
     //     ExtStorage.DIRECTORY_DOWNLOADS));
     // print("Path :: $path");

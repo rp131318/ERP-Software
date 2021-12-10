@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:dustbin/Widgets/button_widget.dart';
 import 'package:dustbin/Widgets/progressHud.dart';
 import 'package:flutter/material.dart';
@@ -51,6 +52,9 @@ class _FinishProductPageState extends State<FinishProductPage> {
 
   var rawMaterialShowDataName = [];
   var rawMaterialShowDataQnt = [];
+
+  String filterDropdown = "Today";
+  List<String> filterList = ["All", "Today"];
 
   @override
   void initState() {
@@ -390,7 +394,7 @@ class _FinishProductPageState extends State<FinishProductPage> {
                   // $name = $_POST['name'];
                   // $raw_data = $_POST['raw_data'];
 
-                  await post(url, body: body).then((value) {
+                  await post(url, body: jsonEncode(body)).then((value) {
                     print("Value :: ${value.body}");
                     if (value.body.toString() == "done") {
                       setState(() {
@@ -742,15 +746,57 @@ class _FinishProductPageState extends State<FinishProductPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 20),
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      "Raw Materials Details",
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: colorBlack5,
-                          fontWeight: FontWeight.bold),
-                    ),
+                  child: Row(
+                    children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          "Finish Product Details",
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: colorBlack5,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Container(
+                        height: 26,
+                        width: 333,
+                        decoration: BoxDecoration(
+                            color: Color(0xfff2f2f2),
+                            // border: Border.all(width: 1, color: grey),
+                            borderRadius: BorderRadius.circular(0)),
+                        margin: EdgeInsets.only(left: 18, right: 18, top: 6),
+                        padding: EdgeInsets.only(left: 14),
+                        child: DropdownButton<String>(
+                          value: filterDropdown,
+                          dropdownColor: colorCard,
+                          elevation: 0,
+                          underline: Container(),
+                          icon: Container(),
+                          onChanged: (String newValue) {
+                            setState(() {
+                              filterDropdown = newValue;
+                            });
+                            // if (filterDropdown == "Today") {
+                            //   getAttendance();
+                            // } else {
+                            //   getAttendance("all");
+                            // }
+                          },
+                          items: filterList
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(
+                                value,
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.black),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 finishProductName.length > 0
@@ -799,83 +845,90 @@ class _FinishProductPageState extends State<FinishProductPage> {
                     setState(() {
                       isLoading = true;
                     });
-                    for (int i = 0; i < rawMaterialNameDatabase.length; i++) {
-                      Uri url = Uri.parse(APIUrl.mainUrl +
-                          APIUrl.availableRaw +
-                          "?name=${rawMaterialNameDatabase[i]}&date=$dateString");
-                      await get(url).then((value) async {
-                        print("Raw Materials :: ${value.body}");
+                    for (int im = 0;
+                        im < int.parse(finishQntController.text);
+                        im++) {
+                      for (int i = 0; i < rawMaterialNameDatabase.length; i++) {
+                        Uri url = Uri.parse(APIUrl.mainUrl +
+                            APIUrl.availableRaw +
+                            "?name=${rawMaterialNameDatabase[i]}&date=$dateString");
+                        await get(url).then((value) async {
+                          print("Raw Materials :: ${value.body}");
 
-                        if (value.body.contains("Error description")) {
-                          //again
+                          if (value.body.contains("Error description")) {
+                            //again
 
-                          for (int k = 0; k < 5; k++) {
-                            DateTime newDate = DateTime(
-                                    int.parse(dateString.split("-")[2]),
-                                    int.parse(dateString.split("-")[1]),
-                                    int.parse(dateString.split("-")[0]))
-                                .subtract(Duration(days: k));
-                            //
+                            for (int k = 0; k < 5; k++) {
+                              DateTime newDate = DateTime(
+                                      int.parse(dateString.split("-")[2]),
+                                      int.parse(dateString.split("-")[1]),
+                                      int.parse(dateString.split("-")[0]))
+                                  .subtract(Duration(days: k));
+                              //
 
-                            Uri url = Uri.parse(APIUrl.mainUrl +
-                                APIUrl.availableRaw +
-                                "?name=${rawMaterialNameDatabase[i]}&date=${newDate.day}-${newDate.month}-${newDate.year}");
-                            print("Error description Url :: $url");
+                              Uri url = Uri.parse(APIUrl.mainUrl +
+                                  APIUrl.availableRaw +
+                                  "?name=${rawMaterialNameDatabase[i]}&date=${newDate.day}-${newDate.month}-${newDate.year}");
+                              print("Error description Url :: $url");
 
-                            await get(url).then((value) {
-                              if (!(value.body.contains("Error description"))) {
-                                k = 10;
-                                // allAttemptDone = false;
-                                print(
-                                    "value.body of function 1 :: ${value.body}");
+                              await get(url).then((value) {
+                                if (!(value.body
+                                    .contains("Error description"))) {
+                                  k = 10;
+                                  // allAttemptDone = false;
+                                  print(
+                                      "value.body of function 1 :: ${value.body}");
+                                  function1(
+                                      value.body,
+                                      rawMaterialQntDatabase[i],
+                                      rawMaterialNameDatabase[i],
+                                      "${newDate.day}-${newDate.month}-${newDate.year}");
+                                }
+                              });
+
+                              if (k == 4) {
                                 function1(
-                                    value.body,
+                                    "0",
                                     rawMaterialQntDatabase[i],
                                     rawMaterialNameDatabase[i],
                                     "${newDate.day}-${newDate.month}-${newDate.year}");
                               }
-                            });
-
-                            if (k == 4) {
-                              function1(
-                                  "0",
-                                  rawMaterialQntDatabase[i],
-                                  rawMaterialNameDatabase[i],
-                                  "${newDate.day}-${newDate.month}-${newDate.year}");
+                              //
                             }
-                            //
+                          } else {
+                            function1(value.body, rawMaterialQntDatabase[i],
+                                rawMaterialNameDatabase[i], "$dateString");
                           }
-                        } else {
-                          function1(value.body, rawMaterialQntDatabase[i],
-                              rawMaterialNameDatabase[i], "$dateString");
-                        }
-                        if (i == rawMaterialNameDatabase.length - 1) {
-                          Future.delayed(const Duration(seconds: 4), () {
-                            final bytes =
-                                Io.File('$filePath').readAsBytesSync();
-                            String img64 = base64Encode(bytes);
-                            //upload to Database
-                            final body = {
-                              "name": "$finishProductDropdown",
-                              "serial_number": "no data",
-                              "quantity": "${finishQntController.text}",
-                              "in_date": "$dateString",
-                              "bill_photo": "$img64",
-                            };
+                          if (i == rawMaterialNameDatabase.length - 1) {
+                            if (im == int.parse(finishQntController.text) - 1) {
+                              Future.delayed(const Duration(seconds: 4), () {
+                                final bytes =
+                                    Io.File('$filePath').readAsBytesSync();
+                                String img64 = base64Encode(bytes);
+                                //upload to Database
 
-                            Uri url = Uri.parse(
-                                APIUrl.mainUrl + APIUrl.finalProductUpload);
-                            post(url, body: body).then((value) {
-                              print("finalProductUpload :: ${value.body}");
-                              dateController.clear();
-                              finishQntController.clear();
-                              serialNumberController.clear();
-                              getAllFinalProducts();
-                            });
-                          });
-                        }
-                      });
+                                final body = {
+                                  "name": "$finishProductDropdown",
+                                  "serial_number": "no data",
+                                  "quantity": "${finishQntController.text}",
+                                  "in_date": "$dateString",
+                                  "bill_photo": "$img64",
+                                };
+
+                                Uri url = Uri.parse(
+                                    APIUrl.mainUrl + APIUrl.finalProductUpload);
+                                post(url, body: jsonEncode(body)).then((value) {
+                                  print("finalProductUpload :: ${value.body}");
+
+                                  getAllFinalProducts();
+                                });
+                              });
+                            }
+                          }
+                        });
+                      }
                     }
+
                     date.add(dateString);
                     finishQnt.add(finishQntController.text);
                     srNo.add(serialNumberController.text);
@@ -1054,7 +1107,7 @@ class _FinishProductPageState extends State<FinishProductPage> {
   }
 
   void getRawMaterials() {
-    Uri url = Uri.parse(APIUrl.mainUrl + APIUrl.getRaw);
+    Uri url = Uri.parse(APIUrl.mainUrl + APIUrl.getRaw + "?type=all");
     get(url).then((value) {
       print("Raw Materials :: ${value.body}");
       int len = getJsonLength(jsonDecode(value.body));
@@ -1185,7 +1238,7 @@ class _FinishProductPageState extends State<FinishProductPage> {
           "?name=$rawName&date=$dateString");
       print("Available Url :: $url1");
       await get(url1).then((value) async {
-        print("Get Available :: ${value.body}");
+        log("Get Available :: ${value.body}");
         //
         if (value.body.contains("Error description")) {
           //again

@@ -43,6 +43,8 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
   Io.File result;
   bool isLoading = false;
   String dateString = "DD-MM-YYYY";
+  String filterDropdown = "Today";
+  List<String> filterList = ["All", "Today"];
 
   @override
   void initState() {
@@ -56,241 +58,289 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
     return Scaffold(
       body: ProgressHUD(
         isLoading: isLoading,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 18, bottom: 18, left: 18),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  "Upload Raw Materials",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 144),
-                    child: titleTextField("Name", nameController),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 18, bottom: 18, left: 18),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    "Upload Raw Materials",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 144),
-                    child: Column(
-                      children: [
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 18),
-                            child: Text(
-                              "Date",
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: colorBlack5,
-                                  fontWeight: FontWeight.bold),
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 144),
+                      child: titleTextField("Name", nameController),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 144),
+                      child: Column(
+                        children: [
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 18),
+                              child: Text(
+                                "Date",
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: colorBlack5,
+                                    fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ),
-                        ),
-                        Container(
-                          height: 26,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              color: Color(0xfff0f0f0),
-                              borderRadius: BorderRadius.circular(0)),
-                          margin: EdgeInsets.only(left: 18, right: 18, top: 6),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 8,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 14),
-                                  child: Text(
-                                    dateString,
-                                    style: TextStyle(fontSize: 18),
+                          Container(
+                            height: 26,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                                color: Color(0xfff0f0f0),
+                                borderRadius: BorderRadius.circular(0)),
+                            margin:
+                                EdgeInsets.only(left: 18, right: 18, top: 6),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 8,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 14),
+                                    child: Text(
+                                      dateString,
+                                      style: TextStyle(fontSize: 18),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                  flex: 2,
-                                  child: InkWell(
-                                    splashColor: Colors.white,
-                                    onTap: () {
-                                      Datefunction();
-                                    },
-                                    child: Container(
-                                        width: double.infinity,
-                                        height: 46,
-                                        decoration: BoxDecoration(
-                                            color: colorBlack5,
-                                            borderRadius: BorderRadius.only(
-                                                topRight: Radius.circular(0),
-                                                bottomRight:
-                                                    Radius.circular(0))),
-                                        margin:
-                                            EdgeInsets.only(left: 0, right: 0),
-                                        child: Center(
-                                            child: Text(
-                                          "Add Date",
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.white),
-                                        ))),
-                                  )),
-                            ],
+                                Expanded(
+                                    flex: 2,
+                                    child: InkWell(
+                                      splashColor: Colors.white,
+                                      onTap: () {
+                                        Datefunction();
+                                      },
+                                      child: Container(
+                                          width: double.infinity,
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                              color: colorBlack5,
+                                              borderRadius: BorderRadius.only(
+                                                  topRight: Radius.circular(0),
+                                                  bottomRight:
+                                                      Radius.circular(0))),
+                                          margin: EdgeInsets.only(
+                                              left: 0, right: 0),
+                                          child: Center(
+                                              child: Text(
+                                            "Add Date",
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white),
+                                          ))),
+                                    )),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 18,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 144),
+                      child: titleTextField("Quantity", qntController),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 144),
+                      child:
+                          titleTextField("Part Number", partNumberController),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 22,
+              ),
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 0, left: 20),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: ButtonWidget(
+                        context: context,
+                        buttonText: "Upload Bill",
+                        isIcon: true,
+                        widget: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.asset(
+                            "images/pdf.png",
+                            width: 20,
+                            height: 20,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 18,
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 144),
-                    child: titleTextField("Quantity", qntController),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 144),
-                    child: titleTextField("Part Number", partNumberController),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 22,
-            ),
-            Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 0, left: 20),
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: ButtonWidget(
-                      context: context,
-                      buttonText: "Upload Bill",
-                      isIcon: true,
-                      widget: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Image.asset(
-                          "images/pdf.png",
-                          width: 20,
-                          height: 20,
-                        ),
-                      ),
-                      function: () {
-                        final file = OpenFilePicker()
-                          ..filterSpecification = {
-                            'Word Document (*.doc)': '*.doc',
-                            'Web Page (*.htm; *.html)': '*.htm;*.html',
-                            'Text Document (*.txt)': '*.txt',
-                            'All Files': '*.*'
-                          }
-                          ..defaultFilterIndex = 0
-                          ..defaultExtension = 'doc'
-                          ..title = 'Select a document';
+                        function: () {
+                          final file = OpenFilePicker()
+                            ..filterSpecification = {
+                              'Word Document (*.doc)': '*.doc',
+                              'Web Page (*.htm; *.html)': '*.htm;*.html',
+                              'Text Document (*.txt)': '*.txt',
+                              'All Files': '*.*'
+                            }
+                            ..defaultFilterIndex = 0
+                            ..defaultExtension = 'doc'
+                            ..title = 'Select a document';
 
-                        result = file.getFile();
-                        if (result != null) {
-                          print(result.path);
-                          setState(() {
-                            filePath = result.path;
-                          });
-                        }
-                      },
-                      left: 0,
-                      right: 0,
-                      width: 133,
-                      height: 33,
+                          result = file.getFile();
+                          if (result != null) {
+                            print(result.path);
+                            setState(() {
+                              filePath = result.path;
+                            });
+                          }
+                        },
+                        left: 0,
+                        right: 0,
+                        width: 133,
+                        height: 33,
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  width: 22,
-                ),
-                Text(
-                  filePath,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: colorBlack5,
-                    decoration: TextDecoration.underline,
+                  SizedBox(
+                    width: 22,
                   ),
-                )
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 166),
-              child: Align(
-                alignment: Alignment.topRight,
-                child: ButtonWidget(
-                  context: context,
-                  widget: Icon(
-                    Icons.add,
-                    color: Colors.white,
-                  ),
-                  isIcon: true,
-                  buttonText: "Add",
-                  function: uploadFunction,
-                  left: 0,
-                  right: 0,
-                  width: 100,
-                  height: 26,
-                ),
-              ),
-            ),
-            Divider(
-              thickness: 1,
-              color: colorBlack5,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  "Raw Materials Details",
-                  style: TextStyle(
-                      fontSize: 18,
+                  Text(
+                    filePath,
+                    style: TextStyle(
+                      fontSize: 14,
                       color: colorBlack5,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            name.length > 0
-                ? Align(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(top: 22, left: 0, right: 14),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          columnSpacing: 46.0,
-                          columns: List.generate(title.length, (index) {
-                            return DataColumn(
-                                label: Text(title[index].toString()));
-                          }),
-                          rows: List.generate(
-                              name.length, (index) => _getDataRow(index)),
-                        ),
-                      ),
+                      decoration: TextDecoration.underline,
                     ),
                   )
-                : Padding(
-                    padding: const EdgeInsets.only(top: 111),
-                    child: loadingWidget(),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 166),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: ButtonWidget(
+                    context: context,
+                    widget: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                    ),
+                    isIcon: true,
+                    buttonText: "Add",
+                    function: uploadFunction,
+                    left: 0,
+                    right: 0,
+                    width: 100,
+                    height: 26,
                   ),
-          ],
+                ),
+              ),
+              Divider(
+                thickness: 1,
+                color: colorBlack5,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: Row(
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        "Raw Materials Details",
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: colorBlack5,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Container(
+                      height: 26,
+                      width: 333,
+                      decoration: BoxDecoration(
+                          color: Color(0xfff2f2f2),
+                          // border: Border.all(width: 1, color: grey),
+                          borderRadius: BorderRadius.circular(0)),
+                      margin: EdgeInsets.only(left: 18, right: 18, top: 6),
+                      padding: EdgeInsets.only(left: 14),
+                      child: DropdownButton<String>(
+                        value: filterDropdown,
+                        dropdownColor: colorCard,
+                        elevation: 0,
+                        underline: Container(),
+                        icon: Container(),
+                        onChanged: (String newValue) {
+                          setState(() {
+                            filterDropdown = newValue;
+                          });
+                          if (filterDropdown == "Today") {
+                            getData();
+                          } else if (filterDropdown == "All") {
+                            getData(filterDropdown.toLowerCase());
+                          } else {
+                            getData("select", filterDropdown);
+                          }
+                        },
+                        items: filterList
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(
+                              value,
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.black),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              name.length > 0
+                  ? Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.only(top: 22, left: 0, right: 14),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            columnSpacing: 46.0,
+                            columns: List.generate(title.length, (index) {
+                              return DataColumn(
+                                  label: Text(title[index].toString()));
+                            }),
+                            rows: List.generate(
+                                name.length, (index) => _getDataRow(index)),
+                          ),
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 111),
+                      child: loadingWidget(),
+                    ),
+            ],
+          ),
         ),
       ),
     );
@@ -350,7 +400,7 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
       Uri url = Uri.parse(APIUrl.mainUrl + APIUrl.uploadRaw);
       print("URL :: $url");
 
-      await post(url, body: body).then((value) {
+      await post(url, body: jsonEncode(body)).then((value) {
         print("Value :: ${value.body}");
       });
       nameController.clear();
@@ -362,32 +412,62 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
     }
   }
 
-  void getData() {
+  void getData([String type = "date", String _name = "no"]) {
     name.clear();
     qnt.clear();
     partNumber.clear();
     date.clear();
     outArray.clear();
     remaining.clear();
-    Uri url = Uri.parse(APIUrl.mainUrl + APIUrl.getRaw);
-    get(url).then((value) {
-      print("Raw Materials :: ${value.body}");
-      final jsonData = jsonDecode(value.body);
-      print("Len :: ${getJsonLength(value.body)}");
-      for (int i = 0; i < getJsonLength(value.body); i++) {
-        name.add(jsonData[i]["name"]);
-        qnt.add(jsonData[i]["quantity"]);
-        partNumber.add(jsonData[i]["part_number"]);
-        date.add(jsonData[i]["in_date"]);
-        photo.add(jsonData[i]["bill_photo"]);
-        outArray.add(jsonData[i]["out"]);
-        remaining.add(jsonData[i]["total"]);
-        setState(() {
-          isLoading = false;
-        });
-      }
-      setState(() {});
-    });
+    DateTime now = DateTime.now();
+    String sendDate = "${now.day}-${now.month}-${now.year}";
+    Uri url;
+    if (type == "select") {
+      url =
+          Uri.parse(APIUrl.mainUrl + APIUrl.getRaw + "?type=$type&name=$_name");
+    } else if (type == "all") {
+      url = Uri.parse(APIUrl.mainUrl + APIUrl.getRaw + "?type=$type");
+    } else {
+      url = Uri.parse(
+          APIUrl.mainUrl + APIUrl.getRaw + "?type=$type&date=$sendDate");
+    }
+    try {
+      print("URL :: $url");
+      get(url).then((value) {
+        print("Raw Materials :: ${value.body}");
+        final jsonData = jsonDecode(value.body);
+        print("Len :: ${getJsonLength(value.body)}");
+        for (int i = 0; i < getJsonLength(value.body); i++) {
+          name.add(jsonData[i]["name"]);
+          qnt.add(jsonData[i]["quantity"]);
+          partNumber.add(jsonData[i]["part_number"]);
+          date.add(jsonData[i]["in_date"]);
+          photo.add(jsonData[i]["bill_photo"]);
+          outArray.add(jsonData[i]["out"]);
+          remaining.add(jsonData[i]["total"]);
+          setState(() {
+            isLoading = false;
+          });
+        }
+        setState(() {});
+      });
+      Uri url1 = Uri.parse(APIUrl.mainUrl + APIUrl.getRaw + "?type=all");
+      get(url1).then((value) {
+        print("Raw Materials :: ${value.body}");
+        int len = getJsonLength(jsonDecode(value.body));
+        final jsonData = jsonDecode(value.body);
+        print("Len :: $len");
+        for (int i = 0; i < len; i++) {
+          setState(() {
+            if (!(filterList.contains("${jsonData[i]["name"]}"))) {
+              filterList.add(jsonData[i]["name"]);
+            }
+          });
+        }
+      });
+    } catch (e) {
+      //
+    }
   }
 
   Datefunction() async {
