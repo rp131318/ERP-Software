@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:dustbin/Widgets/button_widget.dart';
-import 'package:dustbin/Widgets/progressHud.dart';
-import 'package:dustbin/globalVariable.dart';
+import 'package:erp_software/Tab%20Pages/stand_raw_materials.dart';
+import 'package:erp_software/Widgets/button_widget.dart';
+import 'package:erp_software/Widgets/progressHud.dart';
 import 'package:flutter/material.dart';
 import 'package:filepicker_windows/filepicker_windows.dart';
 import 'package:http/http.dart';
@@ -21,6 +21,8 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
   final qntController = TextEditingController();
   final partNumberController = TextEditingController();
   final dateController = TextEditingController();
+  final popUpController = TextEditingController();
+  final paymentController = TextEditingController();
   var a = ["a", "b", "c", "d", "e"];
   var title = [
     "Sr. No.",
@@ -39,12 +41,19 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
   var date = [];
   var remaining = [];
   var outArray = [];
+  var id = [];
   String filePath = " ";
   Io.File result;
   bool isLoading = false;
   String dateString = "DD-MM-YYYY";
   String filterDropdown = "Today";
+  String rawNameDropdown = "Select";
   List<String> filterList = ["All", "Today"];
+  List<String> rawNameList = ["Select"];
+
+  int currentQty = 0;
+
+  int nextPage = 0;
 
   @override
   void initState() {
@@ -56,300 +65,544 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ProgressHUD(
-        isLoading: isLoading,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 18, bottom: 18, left: 18),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    "Upload Raw Materials",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 144),
-                      child: titleTextField("Name", nameController),
+      body: nextPage == 0
+          ? ProgressHUD(
+              isLoading: isLoading,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(top: 18, bottom: 18, left: 18),
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          "Upload Raw Materials",
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 144),
-                      child: Column(
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 144),
+                            child: Column(
+                              children: [
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 18),
+                                    child: Text(
+                                      "Select raw name",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: colorBlack5,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        height: 26,
+                                        width: 333,
+                                        decoration: BoxDecoration(
+                                            color: Color(0xfff2f2f2),
+                                            // border: Border.all(width: 1, color: grey),
+                                            borderRadius:
+                                                BorderRadius.circular(0)),
+                                        margin: EdgeInsets.only(
+                                            left: 18, right: 6, top: 6),
+                                        padding: EdgeInsets.only(left: 14),
+                                        child: DropdownButton<String>(
+                                          value: rawNameDropdown,
+                                          dropdownColor: colorCard,
+                                          elevation: 0,
+                                          underline: Container(),
+                                          icon: Container(),
+                                          onChanged: (String newValue) async {
+                                            Uri url = Uri.parse(APIUrl.mainUrl +
+                                                APIUrl.getRaw +
+                                                "?type=select&name=$newValue");
+                                            print("Url :: $url");
+                                            await get(url).then((value) {
+                                              print(
+                                                  "Raw Materials DropDown :: ${value.body}");
+                                              final jsonData =
+                                                  jsonDecode(value.body);
+                                              print(
+                                                  "Len :: ${getJsonLength(jsonData)}");
+                                              currentQty = int.parse(jsonData[0]
+                                                      ["total"]
+                                                  .toString());
+
+                                              print(
+                                                  "currentQty :: $currentQty");
+                                            });
+                                            setState(() {
+                                              rawNameDropdown = newValue;
+                                            });
+                                          },
+                                          items: rawNameList
+                                              .map<DropdownMenuItem<String>>(
+                                                  (String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(
+                                                value,
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.black),
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(top: 6),
+                                        decoration: BoxDecoration(
+                                            color: colorBlack5,
+                                            // border: Border.all(width: 1, color: grey),
+                                            borderRadius:
+                                                BorderRadius.circular(100)),
+                                        child: InkWell(
+                                          onTap: () {
+                                            AlertDialog alert = AlertDialog(
+                                              // title: Text("Simple Alert"),
+                                              content: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  titleTextField(
+                                                      "Name", popUpController),
+                                                  SizedBox(
+                                                    height: 12,
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            right: 22, top: 12),
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        Navigator.pop(context);
+                                                        if (validateField(
+                                                            context,
+                                                            popUpController)) {
+                                                          rawNameList.add(
+                                                              popUpController
+                                                                  .text);
+                                                          rawNameDropdown =
+                                                              popUpController
+                                                                  .text;
+                                                          popUpController
+                                                              .clear();
+                                                          setState(() {});
+                                                        }
+                                                      },
+                                                      child: Text("Ok"),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+
+                                            // show the dialog
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return alert;
+                                              },
+                                            );
+                                          },
+                                          child: Icon(
+                                            Icons.add,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 144),
+                            child: Column(
+                              children: [
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 18),
+                                    child: Text(
+                                      "Date",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: colorBlack5,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  height: 26,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                      color: Color(0xfff0f0f0),
+                                      borderRadius: BorderRadius.circular(0)),
+                                  margin: EdgeInsets.only(
+                                      left: 18, right: 18, top: 6),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 8,
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 14),
+                                          child: Text(
+                                            dateString,
+                                            style: TextStyle(fontSize: 18),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                          flex: 2,
+                                          child: InkWell(
+                                            splashColor: Colors.white,
+                                            onTap: () {
+                                              Datefunction();
+                                            },
+                                            child: Container(
+                                                width: double.infinity,
+                                                height: 46,
+                                                decoration: BoxDecoration(
+                                                    color: colorBlack5,
+                                                    borderRadius:
+                                                        BorderRadius.only(
+                                                            topRight: Radius
+                                                                .circular(0),
+                                                            bottomRight:
+                                                                Radius.circular(
+                                                                    0))),
+                                                margin: EdgeInsets.only(
+                                                    left: 0, right: 0),
+                                                child: Center(
+                                                    child: Text(
+                                                  "Add Date",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.white),
+                                                ))),
+                                          )),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 18,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 144),
+                            child: titleTextField("Quantity", qntController),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 144),
+                            child: titleTextField(
+                                "Part Number", partNumberController),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 18,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 144),
+                            child: titleTextField(
+                                "Payment Method", paymentController),
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 22,
+                    ),
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 0, left: 20),
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: ButtonWidget(
+                              context: context,
+                              buttonText: "Upload Bill",
+                              isIcon: true,
+                              widget: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Image.asset(
+                                  "images/pdf.png",
+                                  width: 20,
+                                  height: 20,
+                                ),
+                              ),
+                              function: () {
+                                final file = OpenFilePicker()
+                                  ..filterSpecification = {
+                                    'Word Document (*.doc)': '*.doc',
+                                    'Web Page (*.htm; *.html)': '*.htm;*.html',
+                                    'Text Document (*.txt)': '*.txt',
+                                    'All Files': '*.*'
+                                  }
+                                  ..defaultFilterIndex = 0
+                                  ..defaultExtension = 'doc'
+                                  ..title = 'Select a document';
+
+                                result = file.getFile();
+                                if (result != null) {
+                                  print(result.path);
+                                  setState(() {
+                                    filePath = result.path;
+                                  });
+                                }
+                              },
+                              left: 0,
+                              right: 0,
+                              width: 133,
+                              height: 33,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 22,
+                        ),
+                        Text(
+                          filePath,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colorBlack5,
+                            decoration: TextDecoration.underline,
+                          ),
+                        )
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 166),
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: ButtonWidget(
+                          context: context,
+                          widget: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          ),
+                          isIcon: true,
+                          buttonText: "Add",
+                          function: uploadFunction,
+                          left: 0,
+                          right: 0,
+                          width: 100,
+                          height: 26,
+                        ),
+                      ),
+                    ),
+                    Divider(
+                      thickness: 1,
+                      color: colorBlack5,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: Row(
                         children: [
                           Align(
                             alignment: Alignment.topLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 18),
-                              child: Text(
-                                "Date",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: colorBlack5,
-                                    fontWeight: FontWeight.bold),
-                              ),
+                            child: Text(
+                              "Raw Materials Details",
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: colorBlack5,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                           Container(
                             height: 26,
-                            width: double.infinity,
+                            width: 333,
                             decoration: BoxDecoration(
-                                color: Color(0xfff0f0f0),
+                                color: Color(0xfff2f2f2),
+                                // border: Border.all(width: 1, color: grey),
                                 borderRadius: BorderRadius.circular(0)),
                             margin:
                                 EdgeInsets.only(left: 18, right: 18, top: 6),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 8,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 14),
-                                    child: Text(
-                                      dateString,
-                                      style: TextStyle(fontSize: 18),
-                                    ),
+                            padding: EdgeInsets.only(left: 14),
+                            child: DropdownButton<String>(
+                              value: filterDropdown,
+                              dropdownColor: colorCard,
+                              elevation: 0,
+                              underline: Container(),
+                              icon: Container(),
+                              onChanged: (String newValue) {
+                                setState(() {
+                                  filterDropdown = newValue;
+                                });
+                                if (filterDropdown == "Today") {
+                                  getData();
+                                } else if (filterDropdown == "All") {
+                                  getData(filterDropdown.toLowerCase());
+                                } else {
+                                  getData("select", filterDropdown);
+                                }
+                              },
+                              items: filterList.map<DropdownMenuItem<String>>(
+                                  (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                    value,
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.black),
                                   ),
-                                ),
-                                Expanded(
-                                    flex: 2,
-                                    child: InkWell(
-                                      splashColor: Colors.white,
-                                      onTap: () {
-                                        Datefunction();
-                                      },
-                                      child: Container(
-                                          width: double.infinity,
-                                          height: 46,
-                                          decoration: BoxDecoration(
-                                              color: colorBlack5,
-                                              borderRadius: BorderRadius.only(
-                                                  topRight: Radius.circular(0),
-                                                  bottomRight:
-                                                      Radius.circular(0))),
-                                          margin: EdgeInsets.only(
-                                              left: 0, right: 0),
-                                          child: Center(
-                                              child: Text(
-                                            "Add Date",
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.white),
-                                          ))),
-                                    )),
-                              ],
+                                );
+                              }).toList(),
                             ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8, left: 22),
+                            child: ButtonWidget(
+                                context: context,
+                                isIcon: false,
+                                width: 166,
+                                height: 26,
+                                widget: Container(),
+                                buttonText: "Stand by raw mt.",
+                                function: () {
+                                  setState(() {
+                                    nextPage = 1;
+                                  });
+                                }),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 18,
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 144),
-                      child: titleTextField("Quantity", qntController),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 144),
-                      child:
-                          titleTextField("Part Number", partNumberController),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 22,
-              ),
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 0, left: 20),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: ButtonWidget(
-                        context: context,
-                        buttonText: "Upload Bill",
-                        isIcon: true,
-                        widget: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Image.asset(
-                            "images/pdf.png",
-                            width: 20,
-                            height: 20,
-                          ),
-                        ),
-                        function: () {
-                          final file = OpenFilePicker()
-                            ..filterSpecification = {
-                              'Word Document (*.doc)': '*.doc',
-                              'Web Page (*.htm; *.html)': '*.htm;*.html',
-                              'Text Document (*.txt)': '*.txt',
-                              'All Files': '*.*'
-                            }
-                            ..defaultFilterIndex = 0
-                            ..defaultExtension = 'doc'
-                            ..title = 'Select a document';
-
-                          result = file.getFile();
-                          if (result != null) {
-                            print(result.path);
-                            setState(() {
-                              filePath = result.path;
-                            });
-                          }
-                        },
-                        left: 0,
-                        right: 0,
-                        width: 133,
-                        height: 33,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 22,
-                  ),
-                  Text(
-                    filePath,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: colorBlack5,
-                      decoration: TextDecoration.underline,
-                    ),
-                  )
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 166),
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: ButtonWidget(
-                    context: context,
-                    widget: Icon(
-                      Icons.add,
-                      color: Colors.white,
-                    ),
-                    isIcon: true,
-                    buttonText: "Add",
-                    function: uploadFunction,
-                    left: 0,
-                    right: 0,
-                    width: 100,
-                    height: 26,
-                  ),
-                ),
-              ),
-              Divider(
-                thickness: 1,
-                color: colorBlack5,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20),
-                child: Row(
-                  children: [
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        "Raw Materials Details",
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: colorBlack5,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Container(
-                      height: 26,
-                      width: 333,
-                      decoration: BoxDecoration(
-                          color: Color(0xfff2f2f2),
-                          // border: Border.all(width: 1, color: grey),
-                          borderRadius: BorderRadius.circular(0)),
-                      margin: EdgeInsets.only(left: 18, right: 18, top: 6),
-                      padding: EdgeInsets.only(left: 14),
-                      child: DropdownButton<String>(
-                        value: filterDropdown,
-                        dropdownColor: colorCard,
-                        elevation: 0,
-                        underline: Container(),
-                        icon: Container(),
-                        onChanged: (String newValue) {
-                          setState(() {
-                            filterDropdown = newValue;
-                          });
-                          if (filterDropdown == "Today") {
-                            getData();
-                          } else if (filterDropdown == "All") {
-                            getData(filterDropdown.toLowerCase());
-                          } else {
-                            getData("select", filterDropdown);
-                          }
-                        },
-                        items: filterList
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(
-                              value,
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.black),
+                    name.length > 0
+                        ? Align(
+                            alignment: Alignment.topLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 22, left: 0, right: 14),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: DataTable(
+                                  columnSpacing: 46.0,
+                                  columns: List.generate(title.length, (index) {
+                                    return DataColumn(
+                                        label: Text(title[index].toString(),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)));
+                                  }),
+                                  rows: List.generate(name.length,
+                                      (index) => _getDataRow(index)),
+                                ),
+                              ),
                             ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.only(top: 111),
+                            child: loadingWidget(),
+                          ),
                   ],
                 ),
               ),
-              name.length > 0
-                  ? Align(
-                      alignment: Alignment.topLeft,
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.only(top: 22, left: 0, right: 14),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: DataTable(
-                            columnSpacing: 46.0,
-                            columns: List.generate(title.length, (index) {
-                              return DataColumn(
-                                  label: Text(title[index].toString()));
-                            }),
-                            rows: List.generate(
-                                name.length, (index) => _getDataRow(index)),
-                          ),
-                        ),
-                      ),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.only(top: 111),
-                      child: loadingWidget(),
-                    ),
-            ],
-          ),
-        ),
-      ),
+            )
+          : StandRawMaterials(),
     );
   }
 
   DataRow _getDataRow(index) {
     return DataRow(
       cells: <DataCell>[
-        DataCell(Text("${index + 1}")),
+        DataCell(Text("${index + 1}"), showEditIcon: true, onTap: () {
+          AlertDialog alert = AlertDialog(
+            // title: Text("Simple Alert"),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  name[index],
+                  style: TextStyle(fontSize: 18),
+                ),
+                SizedBox(
+                  height: 12,
+                ),
+                titleTextField("Quantity", popUpController),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 22, top: 12),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                        if (validateField(context, popUpController)) {
+                          setState(() {
+                            isLoading = true;
+                          });
+                          Uri url = Uri.parse(APIUrl.mainUrl +
+                              APIUrl.sendRawStandBy +
+                              "?name=${name[index]}&qty=${popUpController.text}");
+
+                          get(url).then((value) {
+                            print("sendRawStandBy Raw :: ${value.body}");
+                            Uri url = Uri.parse(APIUrl.mainUrl +
+                                APIUrl.updateRawStand +
+                                "?id=${id[index]}&qty=${int.parse(remaining[index]) - int.parse(popUpController.text)}");
+
+                            get(url).then((value) {
+                              print("updateRawStand :: ${value.body}");
+                              popUpController.clear();
+                              getData("all");
+                              filterDropdown = "All";
+                            });
+                          });
+                        }
+                        print("Id :: ${id[index]}");
+                      },
+                      child: Text("Submit"),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return alert;
+            },
+          );
+        }),
         DataCell(SizedBox(
           width: 200,
           child: Text("${name[index]}"),
@@ -376,7 +629,7 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
   }
 
   uploadFunction() async {
-    if (validateField(context, nameController) &&
+    if (rawNameDropdown != "Select" &&
         validateField(context, qntController) &&
         validateField(context, partNumberController)) {
       setState(() {
@@ -384,16 +637,19 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
       });
       final bytes = Io.File('$filePath').readAsBytesSync();
 
+      print("Total :: ${int.parse(qntController.text) + currentQty}");
+
       String img64 = base64Encode(bytes);
       //upload to Database
       final body = {
-        "name": "${nameController.text}",
+        "name": "$rawNameDropdown",
         "part_number": "${partNumberController.text}",
         "quantity": "${qntController.text}",
         "in_date": "$dateString",
         "out": "0",
-        "total": "${qntController.text}",
+        "total": "${int.parse(qntController.text) + currentQty}",
         "bill_photo": "$img64",
+        "payment": "${paymentController.text}",
       };
 
       print("Raw Body :: $body");
@@ -407,6 +663,7 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
       qntController.clear();
       partNumberController.clear();
       dateController.clear();
+      // filterDropdown = "Today";
       setState(() {});
       getData();
     }
@@ -438,13 +695,28 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
         final jsonData = jsonDecode(value.body);
         print("Len :: ${getJsonLength(value.body)}");
         for (int i = 0; i < getJsonLength(value.body); i++) {
-          name.add(jsonData[i]["name"]);
-          qnt.add(jsonData[i]["quantity"]);
-          partNumber.add(jsonData[i]["part_number"]);
-          date.add(jsonData[i]["in_date"]);
-          photo.add(jsonData[i]["bill_photo"]);
-          outArray.add(jsonData[i]["out"]);
-          remaining.add(jsonData[i]["total"]);
+          if (type != "select") {
+            if (!name.contains(jsonData[i]["name"])) {
+              name.add(jsonData[i]["name"]);
+              qnt.add(jsonData[i]["quantity"]);
+              partNumber.add(jsonData[i]["part_number"]);
+              date.add(jsonData[i]["in_date"]);
+              photo.add(jsonData[i]["bill_photo"]);
+              outArray.add(jsonData[i]["out"]);
+              remaining.add(jsonData[i]["total"]);
+              id.add(jsonData[i]["id"]);
+            }
+          } else {
+            name.add(jsonData[i]["name"]);
+            qnt.add(jsonData[i]["quantity"]);
+            partNumber.add(jsonData[i]["part_number"]);
+            date.add(jsonData[i]["in_date"]);
+            photo.add(jsonData[i]["bill_photo"]);
+            outArray.add(jsonData[i]["out"]);
+            remaining.add(jsonData[i]["total"]);
+            id.add(jsonData[i]["id"]);
+          }
+
           setState(() {
             isLoading = false;
           });
@@ -462,8 +734,15 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
             if (!(filterList.contains("${jsonData[i]["name"]}"))) {
               filterList.add(jsonData[i]["name"]);
             }
+
+            if (!(rawNameList.contains("${jsonData[i]["name"]}"))) {
+              rawNameList.add(jsonData[i]["name"]);
+            }
           });
         }
+      });
+      setState(() {
+        isLoading = false;
       });
     } catch (e) {
       //

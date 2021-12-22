@@ -59,6 +59,7 @@ final flutterShortText = "Note that UltimateSpell displays the text in the "
 
 void showSnackbar(context, String message, MaterialColor color,
     [int duration = 4000]) {
+  // Scaffold.of(context).hideCurrentSnackBar();
   final snackBar = SnackBar(
     backgroundColor: color,
     duration: Duration(milliseconds: duration),
@@ -149,6 +150,30 @@ class APIUrl {
   static String postAttendance = "attendence_post.php";
   static String getAttendance = "attendence_get.php";
   static String updateAttendance = "attendence_update.php";
+  static String getCustomerDetails = "get_customerdetails.php";
+
+  //
+  static String updateQntFinalProduct = "update_finish_product.php";
+  static String getMarketing = "get_marketing.php";
+
+  //login https://breathemedicalsystems.com/inventory_management/login.php?name=breathe&password=Setupdev@1998
+  static String login = "login.php";
+
+  // https://breathemedicalsystems.com/inventory_management/delte_kaccha.php?name=5" Display
+  static String deleteKachaBill = "delete_kaccha.php";
+  //
+  static String updatePaymentMode = "update_paymentmode.php";
+  static String updateRawStand = "update_raw_stand.php";
+  static String sendRawStandBy = "send_rawstandby.php";
+  static String getStandByRaw = "get_standby.php";
+  static String deleteStandByRaw = "delete_standby.php";
+
+  /*
+  * https://breathemedicalsystems.com/inventory_management/update_paymentmode.php?payment_type=NEFT&bank=BOB&number=630337229616&id=16
+  * send_rawstandby.php
+  * update_raw_stand.php
+  * */
+
 }
 
 Future<String> createOrderMessage() async {
@@ -164,11 +189,11 @@ Widget loadingWidget([String msg = "No details were found."]) {
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.hourglass_empty_rounded,
-                    size: 44,
-                    color: colorBlack5,
-                  ),
+                  // Icon(
+                  //   Icons.hourglass_empty_rounded,
+                  //   size: 44,
+                  //   color: colorBlack5,
+                  // ),
                   SizedBox(
                     height: 22,
                   ),
@@ -408,6 +433,7 @@ Future<void> copyToClipboard(context, copyText) async {
 }
 
 int getJsonLength(jsonText) {
+  // for (int i = 0; i < 4; i++) {
   int len = 0;
   try {
     while (jsonText[len] != null) {
@@ -418,6 +444,7 @@ int getJsonLength(jsonText) {
     // print("Len Catch :: $len");
     return len;
   }
+  // }
 }
 
 String stringToJson(String key, String value) {

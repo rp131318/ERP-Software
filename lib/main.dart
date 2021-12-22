@@ -1,8 +1,9 @@
+import 'package:erp_software/trial_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'home_page.dart';
+import 'login_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,7 +19,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.amber,
       ),
-      home: HomePage(),
+      // home: TrialPage(),
+      home: HomePage(0),
+      // home: LoginPage(),
     );
   }
 }

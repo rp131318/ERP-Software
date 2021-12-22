@@ -1,6 +1,7 @@
-import 'package:dustbin/globalVariable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../globalVariable.dart';
 
 class TabHomePage extends StatefulWidget {
   @override

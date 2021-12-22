@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:dustbin/Widgets/button_widget.dart';
+import 'package:erp_software/Widgets/button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import '../globalVariable.dart';
@@ -54,255 +54,263 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 18, bottom: 18, left: 18),
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Text(
-                "Customer Details",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 18, bottom: 18, left: 18),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  "Customer Details",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 144),
-                  child: titleTextField("Customer Name", nameController),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 144),
+                    child: titleTextField("Customer Name", nameController),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 144),
-                  child: titleTextField("Address", addressController),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 144),
+                    child: titleTextField("Address", addressController),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 18,
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 144),
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 18),
-                          child: Text(
-                            "Date",
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: colorBlack5,
-                                fontWeight: FontWeight.bold),
+              ],
+            ),
+            SizedBox(
+              height: 18,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 144),
+                    child: Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 18),
+                            child: Text(
+                              "Date",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: colorBlack5,
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ),
-                      ),
-                      Container(
-                        height: 26,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            color: Color(0xfff0f0f0),
-                            borderRadius: BorderRadius.circular(0)),
-                        margin: EdgeInsets.only(left: 18, right: 18, top: 6),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 8,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 14),
-                                child: Text(
-                                  dateString,
-                                  style: TextStyle(fontSize: 18),
+                        Container(
+                          height: 26,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                              color: Color(0xfff0f0f0),
+                              borderRadius: BorderRadius.circular(0)),
+                          margin: EdgeInsets.only(left: 18, right: 18, top: 6),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 8,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 14),
+                                  child: Text(
+                                    dateString,
+                                    style: TextStyle(fontSize: 18),
+                                  ),
                                 ),
                               ),
-                            ),
-                            Expanded(
-                                flex: 2,
-                                child: InkWell(
-                                  splashColor: Colors.white,
-                                  onTap: () {
-                                    Datefunction();
-                                  },
-                                  child: Container(
-                                      width: double.infinity,
-                                      height: 46,
-                                      decoration: BoxDecoration(
-                                          color: colorBlack5,
-                                          borderRadius: BorderRadius.only(
-                                              topRight: Radius.circular(0),
-                                              bottomRight: Radius.circular(0))),
-                                      margin:
-                                          EdgeInsets.only(left: 0, right: 0),
-                                      child: Center(
-                                          child: Text(
-                                        "Add Date",
-                                        style: TextStyle(
-                                            fontSize: 12, color: Colors.white),
-                                      ))),
-                                )),
-                          ],
+                              Expanded(
+                                  flex: 2,
+                                  child: InkWell(
+                                    splashColor: Colors.white,
+                                    onTap: () {
+                                      Datefunction();
+                                    },
+                                    child: Container(
+                                        width: double.infinity,
+                                        height: 46,
+                                        decoration: BoxDecoration(
+                                            color: colorBlack5,
+                                            borderRadius: BorderRadius.only(
+                                                topRight: Radius.circular(0),
+                                                bottomRight:
+                                                    Radius.circular(0))),
+                                        margin:
+                                            EdgeInsets.only(left: 0, right: 0),
+                                        child: Center(
+                                            child: Text(
+                                          "Add Date",
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.white),
+                                        ))),
+                                  )),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 144),
+                    child:
+                        titleTextField("Phone Number", phoneNumberController),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 18,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 144),
+                    child: titleTextField("Email", emailController),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 144),
+                    child: titleTextField("GST Number", gstNUmberController),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 18,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 144),
+                    child: titleTextField("State", stateController),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 144),
+                    child: titleTextField("City", cityController),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 18,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 144),
+                    child:
+                        titleTextField("Company Name", companyNameController),
+                  ),
+                ),
+                Expanded(
+                  child: Container(),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 22,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 166),
+              child: Align(
+                alignment: Alignment.topRight,
+                child: ButtonWidget(
+                  widget: Icon(
+                    Icons.add,
+                    color: Colors.white,
+                  ),
+                  isIcon: true,
+                  context: context,
+                  buttonText: "Add",
+                  function: () async {
+                    final body = {
+                      "name": "${nameController.text}",
+                      "date": "$dateString",
+                      "gst": "${gstNUmberController.text}",
+                      "address": "${addressController.text}",
+                      "phone": "${phoneNumberController.text}",
+                      "email": "${emailController.text}",
+                      "state": "${stateController.text}",
+                      "comname": "${companyNameController.text}",
+                      "city": "${cityController.text}",
+                    };
+                    Uri url = Uri.parse(APIUrl.mainUrl + APIUrl.postCustomer);
+                    print("URL :: $url");
+
+                    // $name = $_POST['name'];
+                    // $date = $_POST['date'];
+                    // $gst_number = $_POST['gst'];
+                    // $address = $_POST['address'];
+                    // $phone_number = $_POST['phone'];
+                    // $email = $_POST['email'];
+
+                    await post(url, body: jsonEncode(body)).then((value) {
+                      print("Value :: ${value.body}");
+                      if (value.body.toString() == "done") {
+                        getCustomer();
+                      }
+                    });
+                  },
+                  left: 0,
+                  right: 0,
+                  width: 100,
+                  height: 26,
+                ),
+              ),
+            ),
+            Divider(
+              thickness: 1,
+              color: colorBlack5,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  "Customer Details",
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: colorBlack5,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 22, left: 0, right: 14),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    columnSpacing: 28.0,
+                    columns: List.generate(title.length, (index) {
+                      return DataColumn(
+                          label: Text(title[index].toString(),
+                              style: TextStyle(fontWeight: FontWeight.bold)));
+                    }),
+                    rows: List.generate(
+                        name.length, (index) => _getDataRow(index)),
                   ),
                 ),
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 144),
-                  child: titleTextField("Phone Number", phoneNumberController),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 18,
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 144),
-                  child: titleTextField("Email", emailController),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 144),
-                  child: titleTextField("GST Number", gstNUmberController),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 18,
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 144),
-                  child: titleTextField("State", stateController),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 144),
-                  child: titleTextField("City", cityController),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 18,
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 144),
-                  child: titleTextField("Company Name", companyNameController),
-                ),
-              ),
-              Expanded(
-                child: Container(),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 22,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 166),
-            child: Align(
-              alignment: Alignment.topRight,
-              child: ButtonWidget(
-                widget: Icon(
-                  Icons.add,
-                  color: Colors.white,
-                ),
-                isIcon: true,
-                context: context,
-                buttonText: "Add",
-                function: () async {
-                  final body = {
-                    "name": "${nameController.text}",
-                    "date": "$dateString",
-                    "gst": "${gstNUmberController.text}",
-                    "address": "${addressController.text}",
-                    "phone": "${phoneNumberController.text}",
-                    "email": "${emailController.text}",
-                    "state": "${stateController.text}",
-                    "comname": "${companyNameController.text}",
-                    "city": "${cityController.text}",
-                  };
-                  Uri url = Uri.parse(APIUrl.mainUrl + APIUrl.postCustomer);
-                  print("URL :: $url");
-
-                  // $name = $_POST['name'];
-                  // $date = $_POST['date'];
-                  // $gst_number = $_POST['gst'];
-                  // $address = $_POST['address'];
-                  // $phone_number = $_POST['phone'];
-                  // $email = $_POST['email'];
-
-                  await post(url, body: jsonEncode(body)).then((value) {
-                    print("Value :: ${value.body}");
-                    if (value.body.toString() == "done") {
-                      getCustomer();
-                    }
-                  });
-                },
-                left: 0,
-                right: 0,
-                width: 100,
-                height: 26,
-              ),
             ),
-          ),
-          Divider(
-            thickness: 1,
-            color: colorBlack5,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 20),
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Text(
-                "Customer Details",
-                style: TextStyle(
-                    fontSize: 18,
-                    color: colorBlack5,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 22, left: 0, right: 14),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  columnSpacing: 28.0,
-                  columns: List.generate(title.length, (index) {
-                    return DataColumn(label: Text(title[index].toString()));
-                  }),
-                  rows:
-                      List.generate(name.length, (index) => _getDataRow(index)),
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
