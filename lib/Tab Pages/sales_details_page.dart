@@ -294,10 +294,10 @@ class _SalesDetailsPageState extends State<SalesDetailsPage> {
                 : true, onTap: () {
           // 1 april 2020 31 march 2021
           if (mm == 1) {
-            setState(() {
-              isLoading = true;
-            });
-            sendToFinalBill(index);
+            // setState(() {
+            //   isLoading = true;
+            // });
+            // sendToFinalBill(index);
           } else {
             if (!(paymentStatus[index].toString().contains("Advance"))) {
               showPopUp(index);

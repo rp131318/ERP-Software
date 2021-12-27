@@ -22,6 +22,8 @@ String acre = "Acre";
 String bigha = "Bigha";
 String degreeCenti = "°C";
 
+String userAccess = "-";
+
 int getIndexFromArray(List finalTitle, String s) {
   for (int i = 0; i < finalTitle.length; i++) {
     if (finalTitle[i] == s) {

@@ -37,6 +37,7 @@ class _HomePageState extends State<HomePage> {
     "Sell & Purchase",
     "Marketing Details",
   ];
+  String loginType = " ";
 
   _HomePageState(this.adminCount);
 
@@ -44,6 +45,16 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    if (adminCount == 0) {
+      loginType = "Breathe";
+    } else if (adminCount == 1) {
+      loginType = "CRM";
+    } else if (adminCount == 2) {
+      loginType = "Sales";
+    } else if (adminCount == 3) {
+      loginType = "Stocks";
+    }
   }
 
   /*
@@ -65,79 +76,111 @@ class _HomePageState extends State<HomePage> {
               width: double.infinity,
               margin: EdgeInsets.zero,
               height: MediaQuery.of(context).size.height,
-              child: ListView.builder(
-                  itemCount: buttonArray.length,
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () {
-                        if (adminCount == 2) {
-                          if (index + 1 == 4 || index + 1 == 9) {
-                            //true
-                            setState(() {
-                              currentPage = index + 1;
-                            });
-                          } else {
-                            showSnackbar(
-                                context,
-                                "You don't has permission to access this feature",
-                                Colors.red,
-                                1000);
-                          }
-                        } else if (adminCount == 3) {
-                          if (index + 1 == 1 || index + 1 == 2) {
-                            setState(() {
-                              currentPage = index + 1;
-                            });
-                          } else {
-                            showSnackbar(
-                                context,
-                                "You don't has permission to access this feature",
-                                Colors.red,
-                                1000);
-                          }
-                        } else if (adminCount == 1) {
-                          if (index + 1 == 6 || index + 1 == 7) {
-                            setState(() {
-                              currentPage = index + 1;
-                            });
-                          } else {
-                            showSnackbar(
-                                context,
-                                "You don't has permission to access this feature",
-                                Colors.red,
-                                1000);
-                          }
-                        } else {
-                          setState(() {
-                            currentPage = index + 1;
-                          });
-                        }
-                      },
-                      child: Container(
-                        margin: EdgeInsets.only(
-                            top: index == 0 ? 111 : 11,
-                            right: currentPage == index + 1 ? 0 : 22,
-                            left: 22),
-                        height: 38,
-                        width: double.infinity,
-                        padding: EdgeInsets.only(left: 12),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "${buttonArray[index]}",
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                                fontSize: 20,
-                                color: colorBlack5,
-                                fontWeight: FontWeight.bold),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 22,
+                  ),
+                  Text(
+                    loginType,
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
+                  ListView.builder(
+                      itemCount: buttonArray.length,
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) {
+                        return InkWell(
+                          onTap: () {
+                            //Sales
+                            if (adminCount == 2) {
+                              if (index + 1 == 4 ||
+                                  index + 1 == 2 ||
+                                  index + 1 == 5 ||
+                                  index + 1 == 8) {
+                                //true
+                                userAccess = "sales";
+                                // loginType = "Sales";
+                                setState(() {
+                                  currentPage = index + 1;
+                                });
+                              } else {
+                                showSnackbar(
+                                    context,
+                                    "You don't has permission to access this feature",
+                                    Colors.red,
+                                    1000);
+                              }
+                              //Stock
+                            } else if (adminCount == 3) {
+                              if (index + 1 == 1 ||
+                                  index + 1 == 2 ||
+                                  index + 1 == 8) {
+                                userAccess = "stock";
+                                // loginType = "Stocks";
+                                setState(() {
+                                  currentPage = index + 1;
+                                });
+                              } else {
+                                showSnackbar(
+                                    context,
+                                    "You don't has permission to access this feature",
+                                    Colors.red,
+                                    1000);
+                              }
+                              //CRM
+                            } else if (adminCount == 1) {
+                              if (index + 1 == 6 ||
+                                  index + 1 == 7 ||
+                                  index + 1 == 3 ||
+                                  index + 1 == 4 ||
+                                  index + 1 == 9) {
+                                userAccess = "-";
+                                // loginType = "CRM";
+                                setState(() {
+                                  currentPage = index + 1;
+                                });
+                              } else {
+                                showSnackbar(
+                                    context,
+                                    "You don't has permission to access this feature",
+                                    Colors.red,
+                                    1000);
+                              }
+                            } else {
+                              userAccess = "-";
+                              // loginType = "Breathe";
+                              setState(() {
+                                currentPage = index + 1;
+                              });
+                            }
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(
+                                top: index == 0 ? 111 : 11,
+                                right: currentPage == index + 1 ? 0 : 22,
+                                left: 22),
+                            height: 38,
+                            width: double.infinity,
+                            padding: EdgeInsets.only(left: 12),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                "${buttonArray[index]}",
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    color: colorBlack5,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            color: currentPage == index + 1
+                                ? Color(0xfffafafa)
+                                : colorUnSelected,
                           ),
-                        ),
-                        color: currentPage == index + 1
-                            ? Color(0xfffafafa)
-                            : colorUnSelected,
-                      ),
-                    );
-                  }),
+                        );
+                      }),
+                ],
+              ),
             ),
           ),
           Expanded(flex: 8, child: getPage(currentPage)),

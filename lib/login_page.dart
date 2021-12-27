@@ -80,6 +80,64 @@ class _LoginPageState extends State<LoginPage> {
                             obscureText: true,
                             enableSuggestions: false,
                             autocorrect: false,
+                            onFieldSubmitted: (value) {
+                              setState(() {
+                                isLoading = true;
+                              });
+                              Uri url = Uri.parse(APIUrl.mainUrl +
+                                  APIUrl.login +
+                                  "?name=${idController.text}&password=${passController.text}");
+                              get(url).then((value) {
+                                //
+                                print("Res Login :: ${jsonDecode(value.body)}");
+                                if (jsonDecode(value.body)[0]["login"]
+                                        .toString() ==
+                                    "success") {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                  if (jsonDecode(value.body)[0]["type"]
+                                          .toString() ==
+                                      "all") {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => HomePage(0)),
+                                    );
+                                  } else if (jsonDecode(value.body)[0]["type"]
+                                          .toString() ==
+                                      "crm") {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => HomePage(1)),
+                                    );
+                                  } else if (jsonDecode(value.body)[0]["type"]
+                                          .toString() ==
+                                      "sales") {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => HomePage(2)),
+                                    );
+                                  } else if (jsonDecode(value.body)[0]["type"]
+                                          .toString() ==
+                                      "stock") {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => HomePage(3)),
+                                    );
+                                  }
+                                } else {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                  showSnackbar(context, "Invalid Credential",
+                                      Colors.red);
+                                }
+                              });
+                            },
                             decoration: new InputDecoration(
                                 border: InputBorder.none,
                                 hintText: " ",

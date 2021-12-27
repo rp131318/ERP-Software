@@ -85,9 +85,17 @@ class _FinishProductPageState extends State<FinishProductPage> {
                       color: Color(0xfff2f2f2),
                       child: InkWell(
                         onTap: () {
-                          setState(() {
-                            currentPage = 1;
-                          });
+                          if (userAccess != "sales") {
+                            setState(() {
+                              currentPage = 1;
+                            });
+                          } else {
+                            showSnackbar(
+                                context,
+                                "You don't has permission to access this feature",
+                                Colors.red,
+                                1000);
+                          }
                         },
                         child: Column(
                           children: [
@@ -141,10 +149,18 @@ class _FinishProductPageState extends State<FinishProductPage> {
                       color: Color(0xfff2f2f2),
                       child: InkWell(
                         onTap: () {
-                          getAllProductsName();
-                          setState(() {
-                            currentPage = 3;
-                          });
+                          if (userAccess != "sales") {
+                            getAllProductsName();
+                            setState(() {
+                              currentPage = 3;
+                            });
+                          } else {
+                            showSnackbar(
+                                context,
+                                "You don't has permission to access this feature",
+                                Colors.red,
+                                1000);
+                          }
                         },
                         child: Column(
                           children: [
@@ -499,261 +515,282 @@ class _FinishProductPageState extends State<FinishProductPage> {
                   ),
                 ),
               ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 144),
-                      child: Column(
-                        children: [
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 18),
-                              child: Text(
-                                "Select Product Name",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: colorBlack5,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: Container(
-                              height: 26,
-                              width: 333,
-                              decoration: BoxDecoration(
-                                  color: Color(0xfff2f2f2),
-                                  // border: Border.all(width: 1, color: grey),
-                                  borderRadius: BorderRadius.circular(0)),
-                              margin:
-                                  EdgeInsets.only(left: 18, right: 18, top: 6),
-                              padding: EdgeInsets.only(left: 14),
-                              child: DropdownButton<String>(
-                                value: finishProductDropdown,
-                                dropdownColor: colorCard,
-                                elevation: 0,
-                                underline: Container(),
-                                icon: Container(),
-                                onChanged: (String newValue) {
-                                  //call API
-                                  Uri url = Uri.parse(APIUrl.mainUrl +
-                                      APIUrl.rawMaterialUsed +
-                                      "?name=$newValue");
-                                  get(url).then((value) {
-                                    print(
-                                        "Raw Materials Details :: ${value.body}");
-                                    rawMaterialNameDatabase.clear();
-                                    rawMaterialQntDatabase.clear();
-                                    var temp = value.body.toString().split("}");
-                                    temp.remove("");
-                                    for (int i = 0; i < temp.length; i++) {
-                                      rawMaterialNameDatabase.add(
-                                          temp[i].toString().split("_")[0]);
-                                      rawMaterialQntDatabase.add(int.parse(
-                                          temp[i].toString().split("_")[1]));
-                                    }
-                                    print(
-                                        "rawMaterialNameDatabase :: $rawMaterialNameDatabase");
-                                    print(
-                                        "rawMaterialQntDatabase :: $rawMaterialQntDatabase");
-                                  });
-
-                                  url = Uri.parse(APIUrl.mainUrl +
-                                      APIUrl.getFinalProduct +
-                                      "?type=name&name=$newValue");
-
-                                  get(url).then((value) {
-                                    print(
-                                        "Finish Product Details :: ${value.body}");
-                                    int len =
-                                        getJsonLength(jsonDecode(value.body));
-                                    final jsonData = jsonDecode(value.body);
-                                    print("Len :: $len");
-
-                                    currentStockNumber = int.parse(
-                                        jsonData[0]["quantity"].toString());
-                                    print(
-                                        "currentStockNumber :: $currentStockNumber");
-                                  });
-
-                                  setState(() {
-                                    finishProductDropdown = newValue;
-                                  });
-                                },
-                                items: finishProductList
-                                    .map<DropdownMenuItem<String>>(
-                                        (String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(
-                                      value,
-                                      style: TextStyle(
-                                          fontSize: 18, color: Colors.black),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 144),
-                      child: Column(
-                        children: [
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 18),
-                              child: Text(
-                                "Date",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: colorBlack5,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            height: 26,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                                color: Color(0xfff0f0f0),
-                                borderRadius: BorderRadius.circular(0)),
-                            margin:
-                                EdgeInsets.only(left: 18, right: 18, top: 6),
-                            child: Row(
+              Visibility(
+                visible: userAccess != "sales" ? true : false,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 144),
+                            child: Column(
                               children: [
-                                Expanded(
-                                  flex: 8,
+                                Align(
+                                  alignment: Alignment.topLeft,
                                   child: Padding(
-                                    padding: const EdgeInsets.only(left: 14),
+                                    padding: const EdgeInsets.only(left: 18),
                                     child: Text(
-                                      dateString,
-                                      style: TextStyle(fontSize: 18),
+                                      "Select Product Name",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: colorBlack5,
+                                          fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                 ),
-                                Expanded(
-                                    flex: 2,
-                                    child: InkWell(
-                                      splashColor: Colors.white,
-                                      onTap: () {
-                                        Datefunction();
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Container(
+                                    height: 26,
+                                    width: 333,
+                                    decoration: BoxDecoration(
+                                        color: Color(0xfff2f2f2),
+                                        // border: Border.all(width: 1, color: grey),
+                                        borderRadius: BorderRadius.circular(0)),
+                                    margin: EdgeInsets.only(
+                                        left: 18, right: 18, top: 6),
+                                    padding: EdgeInsets.only(left: 14),
+                                    child: DropdownButton<String>(
+                                      value: finishProductDropdown,
+                                      dropdownColor: colorCard,
+                                      elevation: 0,
+                                      underline: Container(),
+                                      icon: Container(),
+                                      onChanged: (String newValue) {
+                                        //call API
+                                        Uri url = Uri.parse(APIUrl.mainUrl +
+                                            APIUrl.rawMaterialUsed +
+                                            "?name=$newValue");
+                                        get(url).then((value) {
+                                          print(
+                                              "Raw Materials Details :: ${value.body}");
+                                          rawMaterialNameDatabase.clear();
+                                          rawMaterialQntDatabase.clear();
+                                          var temp =
+                                              value.body.toString().split("}");
+                                          temp.remove("");
+                                          for (int i = 0;
+                                              i < temp.length;
+                                              i++) {
+                                            rawMaterialNameDatabase.add(temp[i]
+                                                .toString()
+                                                .split("_")[0]);
+                                            rawMaterialQntDatabase.add(
+                                                int.parse(temp[i]
+                                                    .toString()
+                                                    .split("_")[1]));
+                                          }
+                                          print(
+                                              "rawMaterialNameDatabase :: $rawMaterialNameDatabase");
+                                          print(
+                                              "rawMaterialQntDatabase :: $rawMaterialQntDatabase");
+                                        });
+
+                                        url = Uri.parse(APIUrl.mainUrl +
+                                            APIUrl.getFinalProduct +
+                                            "?type=name&name=$newValue");
+
+                                        get(url).then((value) {
+                                          print(
+                                              "Finish Product Details :: ${value.body}");
+                                          int len = getJsonLength(
+                                              jsonDecode(value.body));
+                                          final jsonData =
+                                              jsonDecode(value.body);
+                                          print("Len :: $len");
+
+                                          currentStockNumber = int.parse(
+                                              jsonData[0]["quantity"]
+                                                  .toString());
+                                          print(
+                                              "currentStockNumber :: $currentStockNumber");
+                                        });
+
+                                        setState(() {
+                                          finishProductDropdown = newValue;
+                                        });
                                       },
-                                      child: Container(
-                                          width: double.infinity,
-                                          height: 46,
-                                          decoration: BoxDecoration(
-                                              color: colorBlack5,
-                                              borderRadius: BorderRadius.only(
-                                                  topRight: Radius.circular(0),
-                                                  bottomRight:
-                                                      Radius.circular(0))),
-                                          margin: EdgeInsets.only(
-                                              left: 0, right: 0),
-                                          child: Center(
-                                              child: Text(
-                                            "Add Date",
+                                      items: finishProductList
+                                          .map<DropdownMenuItem<String>>(
+                                              (String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(
+                                            value,
                                             style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.white),
-                                          ))),
-                                    )),
+                                                fontSize: 18,
+                                                color: Colors.black),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 18,
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 177),
-                      child: titleTextField("Quantity", finishQntController),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 177),
-                      child: titleTextField("HSN/SAC", hsnCodeController),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 22,
-              ),
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 0, left: 20),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: ButtonWidget(
-                        widget: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Image.asset(
-                            "images/pdf.png",
-                            width: 20,
-                            height: 20,
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 144),
+                            child: Column(
+                              children: [
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 18),
+                                    child: Text(
+                                      "Date",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: colorBlack5,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  height: 26,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                      color: Color(0xfff0f0f0),
+                                      borderRadius: BorderRadius.circular(0)),
+                                  margin: EdgeInsets.only(
+                                      left: 18, right: 18, top: 6),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 8,
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 14),
+                                          child: Text(
+                                            dateString,
+                                            style: TextStyle(fontSize: 18),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                          flex: 2,
+                                          child: InkWell(
+                                            splashColor: Colors.white,
+                                            onTap: () {
+                                              Datefunction();
+                                            },
+                                            child: Container(
+                                                width: double.infinity,
+                                                height: 46,
+                                                decoration: BoxDecoration(
+                                                    color: colorBlack5,
+                                                    borderRadius:
+                                                        BorderRadius.only(
+                                                            topRight: Radius
+                                                                .circular(0),
+                                                            bottomRight:
+                                                                Radius.circular(
+                                                                    0))),
+                                                margin: EdgeInsets.only(
+                                                    left: 0, right: 0),
+                                                child: Center(
+                                                    child: Text(
+                                                  "Add Date",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.white),
+                                                ))),
+                                          )),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        isIcon: true,
-                        context: context,
-                        buttonText: "Upload",
-                        function: () {
-                          final file = OpenFilePicker()
-                            ..filterSpecification = {
-                              'Word Document (*.doc)': '*.doc',
-                              'Web Page (*.htm; *.html)': '*.htm;*.html',
-                              'Text Document (*.txt)': '*.txt',
-                              'All Files': '*.*'
-                            }
-                            ..defaultFilterIndex = 0
-                            ..defaultExtension = 'doc'
-                            ..title = 'Select a document';
+                      ],
+                    ),
+                    SizedBox(
+                      height: 18,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 177),
+                            child:
+                                titleTextField("Quantity", finishQntController),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 177),
+                            child: titleTextField("HSN/SAC", hsnCodeController),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 22,
+                    ),
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 0, left: 20),
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: ButtonWidget(
+                              widget: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Image.asset(
+                                  "images/pdf.png",
+                                  width: 20,
+                                  height: 20,
+                                ),
+                              ),
+                              isIcon: true,
+                              context: context,
+                              buttonText: "PO Upload",
+                              function: () {
+                                final file = OpenFilePicker()
+                                  ..filterSpecification = {
+                                    'Word Document (*.doc)': '*.doc',
+                                    'Web Page (*.htm; *.html)': '*.htm;*.html',
+                                    'Text Document (*.txt)': '*.txt',
+                                    'All Files': '*.*'
+                                  }
+                                  ..defaultFilterIndex = 0
+                                  ..defaultExtension = 'doc'
+                                  ..title = 'Select a document';
 
-                          final result = file.getFile();
-                          if (result != null) {
-                            print(result.path);
-                            setState(() {
-                              filePath = result.path;
-                            });
-                          }
-                        },
-                        left: 0,
-                        right: 0,
-                        width: 133,
-                        height: 33,
-                      ),
+                                final result = file.getFile();
+                                if (result != null) {
+                                  print(result.path);
+                                  setState(() {
+                                    filePath = result.path;
+                                  });
+                                }
+                              },
+                              left: 0,
+                              right: 0,
+                              width: 133,
+                              height: 33,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 22,
+                        ),
+                        Text(
+                          filePath,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colorBlack5,
+                            decoration: TextDecoration.underline,
+                          ),
+                        )
+                      ],
                     ),
-                  ),
-                  SizedBox(
-                    width: 22,
-                  ),
-                  Text(
-                    filePath,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: colorBlack5,
-                      decoration: TextDecoration.underline,
-                    ),
-                  )
-                ],
+                  ],
+                ),
               ),
               Divider(
                 thickness: 1,
@@ -842,59 +879,73 @@ class _FinishProductPageState extends State<FinishProductPage> {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(right: 111, bottom: 44),
-          child: Align(
-            alignment: Alignment.bottomRight,
-            child: ButtonWidget(
-              widget: Image.asset(
-                "images/submit.png",
-                width: 20,
-                height: 20,
-                color: Colors.white,
-              ),
-              isIcon: true,
-              context: context,
-              buttonText: "Submit",
-              function: () async {
-                // try {
-                if (validateField(context, finishQntController)) {
-                  setState(() {
-                    isLoading = true;
-                  });
-                  // for (int im = 0;
-                  //     im < int.parse(finishQntController.text);
-                  //     im++) {
-                  for (int i = 0; i < rawMaterialNameDatabase.length; i++) {
-                    Uri url = Uri.parse(APIUrl.mainUrl +
-                        APIUrl.availableRaw +
-                        "?name=${rawMaterialNameDatabase[i]}&date=$dateString");
-                    await get(url).then((value) async {
-                      print("Raw Materials :: ${value.body}");
+        Visibility(
+          visible: userAccess != "sales" ? true : false,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 111, bottom: 44),
+            child: Align(
+              alignment: Alignment.bottomRight,
+              child: ButtonWidget(
+                widget: Image.asset(
+                  "images/submit.png",
+                  width: 20,
+                  height: 20,
+                  color: Colors.white,
+                ),
+                isIcon: true,
+                context: context,
+                buttonText: "Submit",
+                function: () async {
+                  // try {
+                  if (validateField(context, finishQntController)) {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    // for (int im = 0;
+                    //     im < int.parse(finishQntController.text);
+                    //     im++) {
+                    for (int i = 0; i < rawMaterialNameDatabase.length; i++) {
+                      Uri url = Uri.parse(APIUrl.mainUrl +
+                          APIUrl.availableRaw +
+                          "?name=${rawMaterialNameDatabase[i]}&date=$dateString");
+                      await get(url).then((value) async {
+                        print("Raw Materials :: ${value.body}");
 
-                      if (value.body.contains("Error description")) {
-                        //again
+                        if (value.body.contains("Error description")) {
+                          //again
 
-                        for (kmk = 0; kmk < 365; kmk++) {
-                          DateTime newDate = DateTime(
-                                  int.parse(dateString.split("-")[2]),
-                                  int.parse(dateString.split("-")[1]),
-                                  int.parse(dateString.split("-")[0]))
-                              .subtract(Duration(days: kmk));
+                          for (kmk = 0; kmk < 365; kmk++) {
+                            DateTime newDate = DateTime(
+                                    int.parse(dateString.split("-")[2]),
+                                    int.parse(dateString.split("-")[1]),
+                                    int.parse(dateString.split("-")[0]))
+                                .subtract(Duration(days: kmk));
 
-                          Uri url = Uri.parse(APIUrl.mainUrl +
-                              APIUrl.availableRaw +
-                              "?name=${rawMaterialNameDatabase[i]}&date=${newDate.day}-${newDate.month}-${newDate.year}");
-                          print("Error description Url :: $url");
+                            Uri url = Uri.parse(APIUrl.mainUrl +
+                                APIUrl.availableRaw +
+                                "?name=${rawMaterialNameDatabase[i]}&date=${newDate.day}-${newDate.month}-${newDate.year}");
+                            print("Error description Url :: $url");
 
-                          await get(url).then((value) {
-                            if (!(value.body.contains("Error description"))) {
-                              kmk = 400;
-                              // allAttemptDone = false;
-                              print(
-                                  "value.body of function 1 :: ${value.body}");
+                            await get(url).then((value) {
+                              if (!(value.body.contains("Error description"))) {
+                                kmk = 400;
+                                // allAttemptDone = false;
+                                print(
+                                    "value.body of function 1 :: ${value.body}");
+                                function1(
+                                    value.body,
+                                    (int.parse(rawMaterialQntDatabase[i]
+                                                .toString()) *
+                                            int.parse(finishQntController.text))
+                                        .toString(),
+                                    rawMaterialNameDatabase[i],
+                                    "${newDate.day}-${newDate.month}-${newDate.year}");
+                              }
+                            });
+
+                            if (kmk == 364) {
                               function1(
-                                  value.body,
+                                  "0",
                                   (int.parse(rawMaterialQntDatabase[i]
                                               .toString()) *
                                           int.parse(finishQntController.text))
@@ -902,84 +953,78 @@ class _FinishProductPageState extends State<FinishProductPage> {
                                   rawMaterialNameDatabase[i],
                                   "${newDate.day}-${newDate.month}-${newDate.year}");
                             }
-                          });
-
-                          if (kmk == 364) {
-                            function1(
-                                "0",
-                                (int.parse(rawMaterialQntDatabase[i]
-                                            .toString()) *
-                                        int.parse(finishQntController.text))
-                                    .toString(),
-                                rawMaterialNameDatabase[i],
-                                "${newDate.day}-${newDate.month}-${newDate.year}");
+                            //
                           }
+                        } else {
+                          // print("value.body :: ${value.body}");
+                          // print(
+                          //     "Value 1 :: ${int.parse(rawMaterialQntDatabase[i].toString())}");
+                          // print(
+                          //     "Value 2 :: ${int.parse(qntController.text).toString()}");
+                          // print(
+                          //     "Mult 1 :: ${(int.parse(rawMaterialQntDatabase[i].toString()) * int.parse(qntController.text)).toString()}");
                           //
+                          // print(
+                          //     "rawMaterialNameDatabase[i] :: ${rawMaterialNameDatabase[i]}");
+                          // print("dateString :: ${dateString}");
+
+                          function1(
+                              value.body.toString(),
+                              (int.parse(rawMaterialQntDatabase[i].toString()) *
+                                      int.parse(finishQntController.text))
+                                  .toString(),
+                              rawMaterialNameDatabase[i],
+                              "$dateString");
                         }
-                      } else {
-                        // print("value.body :: ${value.body}");
-                        // print(
-                        //     "Value 1 :: ${int.parse(rawMaterialQntDatabase[i].toString())}");
-                        // print(
-                        //     "Value 2 :: ${int.parse(qntController.text).toString()}");
-                        // print(
-                        //     "Mult 1 :: ${(int.parse(rawMaterialQntDatabase[i].toString()) * int.parse(qntController.text)).toString()}");
-                        //
-                        // print(
-                        //     "rawMaterialNameDatabase[i] :: ${rawMaterialNameDatabase[i]}");
-                        // print("dateString :: ${dateString}");
+                        if (i == rawMaterialNameDatabase.length - 1) {
+                          // if (im == int.parse(finishQntController.text) - 1) {
+                          await Future.delayed(const Duration(seconds: 2), () {
+                            String img64;
+                            if (filePath != " ") {
+                              final bytes =
+                                  Io.File('$filePath').readAsBytesSync();
+                              img64 = base64Encode(bytes);
+                            }
 
-                        function1(
-                            value.body.toString(),
-                            (int.parse(rawMaterialQntDatabase[i].toString()) *
-                                    int.parse(finishQntController.text))
-                                .toString(),
-                            rawMaterialNameDatabase[i],
-                            "$dateString");
-                      }
-                      if (i == rawMaterialNameDatabase.length - 1) {
-                        // if (im == int.parse(finishQntController.text) - 1) {
-                        await Future.delayed(const Duration(seconds: 2), () {
-                          final bytes = Io.File('$filePath').readAsBytesSync();
-                          String img64 = base64Encode(bytes);
-                          //upload to Database
+                            //upload to Database
 
-                          final body = {
-                            "name": "$finishProductDropdown",
-                            "serial_number": "no data",
-                            "quantity":
-                                "${int.parse(finishQntController.text) + currentStockNumber}",
-                            "in_date": "$dateString",
-                            "bill_photo": "$img64",
-                            "hsn": "${hsnCodeController.text}",
-                          };
+                            final body = {
+                              "name": "$finishProductDropdown",
+                              "serial_number": "no data",
+                              "quantity":
+                                  "${int.parse(finishQntController.text) + currentStockNumber}",
+                              "in_date": "$dateString",
+                              "bill_photo": "$img64",
+                              "hsn": "${hsnCodeController.text}",
+                            };
 
-                          Uri url = Uri.parse(
-                              APIUrl.mainUrl + APIUrl.finalProductUpload);
-                          post(url, body: jsonEncode(body)).then((value) {
-                            print("finalProductUpload :: ${value.body}");
+                            Uri url = Uri.parse(
+                                APIUrl.mainUrl + APIUrl.finalProductUpload);
+                            post(url, body: jsonEncode(body)).then((value) {
+                              print("finalProductUpload :: ${value.body}");
 
-                            getAllFinalProducts();
+                              getAllFinalProducts();
+                            });
                           });
-                        });
-                        // }
-                      }
-                    });
+                          // }
+                        }
+                      });
+                    }
+                    // }
+                    date.add(dateString);
+                    finishQnt.add(finishQntController.text);
+                    srNo.add(serialNumberController.text);
+                    setState(() {});
                   }
+                  // } catch (e) {
+                  //   print("Error Message :: $e");
                   // }
-                  date.add(dateString);
-                  finishQnt.add(finishQntController.text);
-                  srNo.add(serialNumberController.text);
-                  setState(() {});
-                }
-                // } catch (e) {
-                //   print("Error Message :: $e");
-                // }
-              },
-              left: 0,
-              right: 0,
-              width: 133,
-              height: 33,
+                },
+                left: 0,
+                right: 0,
+                width: 133,
+                height: 33,
+              ),
             ),
           ),
         ),

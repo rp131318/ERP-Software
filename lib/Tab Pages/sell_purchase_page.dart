@@ -33,9 +33,17 @@ class _SellPurchasePageState extends State<SellPurchasePage> {
                         color: Color(0xfff2f2f2),
                         child: InkWell(
                           onTap: () {
-                            setState(() {
-                              currentPage = 1;
-                            });
+                            if (userAccess != "stock") {
+                              setState(() {
+                                currentPage = 1;
+                              });
+                            } else {
+                              showSnackbar(
+                                  context,
+                                  "You don't has permission to access this feature",
+                                  Colors.red,
+                                  1000);
+                            }
                           },
                           child: Column(
                             children: [
@@ -62,9 +70,17 @@ class _SellPurchasePageState extends State<SellPurchasePage> {
                           onTap: () {
                             // getAllProductsName();
                             // getAllFinalProducts();
-                            setState(() {
-                              currentPage = 2;
-                            });
+                            if (userAccess != "sales") {
+                              setState(() {
+                                currentPage = 2;
+                              });
+                            } else {
+                              showSnackbar(
+                                  context,
+                                  "You don't has permission to access this feature",
+                                  Colors.red,
+                                  1000);
+                            }
                           },
                           child: Column(
                             children: [

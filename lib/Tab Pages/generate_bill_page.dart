@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:number_to_words/number_to_words.dart';
 import 'package:erp_software/Widgets/button_widget.dart';
 import 'package:flutter/services.dart';
@@ -41,7 +42,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
   String milli = DateTime.now().millisecondsSinceEpoch.toString();
   List<int> bytes;
   var assetImage;
-
+  double preTotal = 0;
   var customerDetailsJson;
   double dividerHeight = 244.0;
   int currentStockNumber = 1;
@@ -72,6 +73,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
   //
   var updateIdArray = [];
   var updateQntArray = [];
+  SharedPreferences prefs;
 
   @override
   void initState() {
@@ -761,7 +763,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                       widget: Container(),
                       isIcon: false,
                       context: context,
-                      buttonText: "Rough Bill",
+                      buttonText: "Proforma  Bill",
                       function: () {
                         // final bytes = Io.File('$filePath').readAsBytesSync();
                         //
@@ -787,7 +789,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                       },
                       left: 0,
                       right: 0,
-                      width: 100,
+                      width: 120,
                       height: 26,
                     ),
                   ),
@@ -804,9 +806,11 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                       isIcon: false,
                       context: context,
                       buttonText: "Final Bill",
-                      function: () {
+                      function: () async {
                         showSnackbar(context, "Please wait we are creating PDF",
                             Colors.green);
+                        await prefs.setInt(
+                            "billNo", prefs.getInt("billNo") + 1);
                         pdfTrial(2, "Original for recipient");
                         pdfTrial(2, "Duplicate for transportation");
                         pdfTrial(3, "Triplicates  for supplier");
@@ -892,9 +896,13 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
 
   Future<void> pdfTrial(int billCount, String recipentTitle) async {
     productSubtotalArray.clear();
+    subTotalArray.clear();
+
+    preTotal = 0;
 
     for (int i = 0; i < productNameArray.length; i++) {
       subTotalArray.add(getSubTotal1(i));
+      preTotal = preTotal + double.parse(getSubTotal1(i));
     }
     totalFinal = getTotalFinal();
 
@@ -910,7 +918,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                   children: [
                     pw.Center(
                       child: pw.Text(
-                        "INVOICE",
+                        billCount == 1 ? "Proforma Invoice" : "Tax Invoice",
                         style: pw.TextStyle(
                             fontSize: 10, fontWeight: pw.FontWeight.bold),
                       ),
@@ -1319,54 +1327,6 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                                             children: [
                                               pw.Expanded(
                                                 child: pw.Text(
-                                                  "Company's VAT TIN :",
-                                                  style:
-                                                      pw.TextStyle(fontSize: 8),
-                                                ),
-                                              ),
-                                              pw.Expanded(
-                                                child: pw.Text(
-                                                  "YESB0000098",
-                                                  style:
-                                                      pw.TextStyle(fontSize: 8),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        pw.SizedBox(
-                                          height: 2,
-                                        ),
-                                        pw.SizedBox(
-                                          width: 200,
-                                          child: pw.Row(
-                                            children: [
-                                              pw.Expanded(
-                                                child: pw.Text(
-                                                  "Company's CST No. :",
-                                                  style:
-                                                      pw.TextStyle(fontSize: 8),
-                                                ),
-                                              ),
-                                              pw.Expanded(
-                                                child: pw.Text(
-                                                  "YESB0000098",
-                                                  style:
-                                                      pw.TextStyle(fontSize: 8),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        pw.SizedBox(
-                                          height: 2,
-                                        ),
-                                        pw.SizedBox(
-                                          width: 200,
-                                          child: pw.Row(
-                                            children: [
-                                              pw.Expanded(
-                                                child: pw.Text(
                                                   "Company's PAN :",
                                                   style:
                                                       pw.TextStyle(fontSize: 8),
@@ -1374,7 +1334,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                                               ),
                                               pw.Expanded(
                                                 child: pw.Text(
-                                                  "YESB0000098",
+                                                  "AAECD5947N",
                                                   style:
                                                       pw.TextStyle(fontSize: 8),
                                                 ),
@@ -1504,7 +1464,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
           pw.Padding(
             padding: pw.EdgeInsets.only(left: 4),
             child: pw.Text(
-              "15, hariom nagar pandesara,\nnear govalak road,\nSurat-394210, Gujarat, India \nGSTIN/UIN : 256322142568542",
+              "15, hariom nagar pandesara,\nnear govalak road,\nSurat-394210, Gujarat, India \nGSTIN/UIN : 24AAECD5947N1Z8",
               style: pw.TextStyle(fontSize: 8),
             ),
           ),
@@ -1599,7 +1559,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
         pw.Padding(
           padding: const pw.EdgeInsets.only(left: 4),
           child: pw.Text(
-            getRandomInt(4),
+            "B" + (prefs.getInt("billNo").toString()),
             style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
           ),
         ),
@@ -2001,6 +1961,10 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
   }
 
   Future<void> getImage() async {
+    prefs = await SharedPreferences.getInstance();
+    if (prefs.getInt("billNo").toString() == "null") {
+      await prefs.setInt("billNo", 115);
+    }
     assetImage = pw.MemoryImage(
       (await rootBundle.load('images/logo.png')).buffer.asUint8List(),
     );
@@ -2038,34 +2002,37 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
         "${double.parse(productPriceArray[index]) * double.parse(productQuantityArray[index])}";
     print("TT Subtotal :: $tt");
     productSubtotalArray.add(tt);
-    totalFinal = getTotalFinal();
+    // totalFinal = getTotalFinal();
     return tt;
   }
 
   String getTotalFinal() {
     double tt = 0;
-    for (int i = 0; i < productSubtotalArray.length; i++) {
-      tt = tt + double.parse(productSubtotalArray[i]);
-      if (i == productSubtotalArray.length - 1) {
-        double gst = (tt * double.parse(gstPercentageController.text)) / 100;
-        tt = tt + gst;
-        print("Final TOtal :: $tt");
-        return tt.toString();
-      }
-    }
+    // for (int i = 0; i < productSubtotalArray.length; i++) {
+    //   tt = tt + double.parse(productSubtotalArray[i]);
+    //   if (i == productSubtotalArray.length - 1) {
+    //     double gst = (tt * double.parse(gstPercentageController.text)) / 100;
+    //     tt = tt + gst;
+    //     print("Final TOtal :: $tt");
+    //     return tt.toString();
+    //   }
+    // }
+    double gst = (preTotal * double.parse(gstPercentageController.text)) / 100;
+    tt = preTotal + gst;
+    return tt.toString();
   }
 
   String getCsgtAmt() {
     double tt = (double.parse(gstPercentageController.text) /
             2 *
-            double.parse(totalFinal)) /
+            double.parse(preTotal.toString())) /
         100;
     return tt.toString();
   }
 
   String getIgstAmt() {
     double tt = (double.parse(gstPercentageController.text) *
-            double.parse(totalFinal)) /
+            double.parse(preTotal.toString())) /
         100;
     return tt.toString();
   }
