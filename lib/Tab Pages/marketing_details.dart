@@ -29,118 +29,121 @@ class _MarketingDetailsState extends State<MarketingDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 18, bottom: 18, left: 18),
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Text(
-                "Employee Marketing Details",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 18, top: 22, right: 18),
-            child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: name.length + 1,
-                itemBuilder: (context, index) {
-                  return index == 0
-                      ? Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    "Employee",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16),
+      body: name.length > 0
+          ? Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 18, bottom: 18, left: 18),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      "Employee Marketing Details",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 18, top: 22, right: 18),
+                  child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: name.length + 1,
+                      itemBuilder: (context, index) {
+                        return index == 0
+                            ? Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          "Employee",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16),
+                                        ),
+                                        flex: 1,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          "Customer",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16),
+                                        ),
+                                        flex: 1,
+                                      ),
+                                      SizedBox(
+                                        width: 12,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          "Date",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16),
+                                        ),
+                                        flex: 2,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          "Location",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16),
+                                        ),
+                                        flex: 2,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          "Remark",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16),
+                                        ),
+                                        flex: 4,
+                                      ),
+                                    ],
                                   ),
-                                  flex: 1,
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    "Customer",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16),
+                                  Divider(),
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(name[index - 1]),
+                                        flex: 1,
+                                      ),
+                                      Expanded(
+                                        child: Text(customerName[index - 1]),
+                                        flex: 1,
+                                      ),
+                                      SizedBox(
+                                        width: 12,
+                                      ),
+                                      Expanded(
+                                        child: Text(date[index - 1]),
+                                        flex: 2,
+                                      ),
+                                      Expanded(
+                                        child: Text(location[index - 1]),
+                                        flex: 2,
+                                      ),
+                                      Expanded(
+                                        child: Text(remark[index - 1]),
+                                        flex: 4,
+                                      ),
+                                    ],
                                   ),
-                                  flex: 1,
-                                ),
-                                SizedBox(
-                                  width: 12,
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    "Date",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16),
-                                  ),
-                                  flex: 2,
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    "Location",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16),
-                                  ),
-                                  flex: 2,
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    "Remark",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16),
-                                  ),
-                                  flex: 4,
-                                ),
-                              ],
-                            ),
-                            Divider(),
-                          ],
-                        )
-                      : Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(name[index - 1]),
-                                  flex: 1,
-                                ),
-                                Expanded(
-                                  child: Text(customerName[index - 1]),
-                                  flex: 1,
-                                ),
-                                SizedBox(
-                                  width: 12,
-                                ),
-                                Expanded(
-                                  child: Text(date[index - 1]),
-                                  flex: 2,
-                                ),
-                                Expanded(
-                                  child: Text(location[index - 1]),
-                                  flex: 2,
-                                ),
-                                Expanded(
-                                  child: Text(remark[index - 1]),
-                                  flex: 4,
-                                ),
-                              ],
-                            ),
-                            Divider(),
-                          ],
-                        );
-                }),
-          ),
-        ],
-      ),
+                                  Divider(),
+                                ],
+                              );
+                      }),
+                ),
+              ],
+            )
+          : loadingWidget("No Marketing Details Found"),
     );
   }
 

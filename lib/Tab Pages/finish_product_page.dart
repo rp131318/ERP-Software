@@ -722,7 +722,7 @@ class _FinishProductPageState extends State<FinishProductPage> {
                         ),
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.only(right: 177),
+                            padding: const EdgeInsets.only(right: 144),
                             child: titleTextField("HSN/SAC", hsnCodeController),
                           ),
                         ),

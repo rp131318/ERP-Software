@@ -188,22 +188,27 @@ class _SalesDetailsPageState extends State<SalesDetailsPage> {
         //     ),
         //   ),
         // ),
-        Align(
-          alignment: Alignment.topLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 22, left: 0, right: 14),
-            child: DataTable(
-              columnSpacing: 28.0,
-              columns: List.generate(title.length, (index) {
-                return DataColumn(
-                    label: Text(title[index].toString(),
-                        style: TextStyle(fontWeight: FontWeight.bold)));
-              }),
-              rows: List.generate(
-                  customerName.length, (index) => _getDataRow(index, 0)),
-            ),
-          ),
-        ),
+        customerName.length > 0
+            ? Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 22, left: 0, right: 14),
+                  child: DataTable(
+                    columnSpacing: 28.0,
+                    columns: List.generate(title.length, (index) {
+                      return DataColumn(
+                          label: Text(title[index].toString(),
+                              style: TextStyle(fontWeight: FontWeight.bold)));
+                    }),
+                    rows: List.generate(
+                        customerName.length, (index) => _getDataRow(index, 0)),
+                  ),
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.only(top: 88),
+                child: loadingWidget(),
+              ),
       ],
     );
   }
@@ -260,22 +265,29 @@ class _SalesDetailsPageState extends State<SalesDetailsPage> {
         Row(
           children: [
             Expanded(
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 22, left: 0, right: 14),
-                  child: DataTable(
-                    columnSpacing: 28.0,
-                    columns: List.generate(title.length, (index) {
-                      return DataColumn(
-                          label: Text(title[index].toString(),
-                              style: TextStyle(fontWeight: FontWeight.bold)));
-                    }),
-                    rows: List.generate(
-                        customerName.length, (index) => _getDataRow(index, 1)),
-                  ),
-                ),
-              ),
+              child: customerName.length > 0
+                  ? Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.only(top: 22, left: 0, right: 14),
+                        child: DataTable(
+                          columnSpacing: 28.0,
+                          columns: List.generate(title.length, (index) {
+                            return DataColumn(
+                                label: Text(title[index].toString(),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold)));
+                          }),
+                          rows: List.generate(customerName.length,
+                              (index) => _getDataRow(index, 1)),
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 88),
+                      child: loadingWidget(),
+                    ),
             ),
           ],
         ),

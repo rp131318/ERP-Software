@@ -184,25 +184,32 @@ class _EmplyoeeDetailsPageState extends State<EmplyoeeDetailsPage> {
                 ),
               ),
             ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 22, left: 0, right: 14),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columnSpacing: 28.0,
-                    columns: List.generate(title.length, (index) {
-                      return DataColumn(
-                          label: Text(title[index].toString(),
-                              style: TextStyle(fontWeight: FontWeight.bold)));
-                    }),
-                    rows: List.generate(
-                        name.length, (index) => _getDataRow(index)),
+            name.length > 0
+                ? Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.only(top: 22, left: 0, right: 14),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          columnSpacing: 28.0,
+                          columns: List.generate(title.length, (index) {
+                            return DataColumn(
+                                label: Text(title[index].toString(),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold)));
+                          }),
+                          rows: List.generate(
+                              name.length, (index) => _getDataRow(index)),
+                        ),
+                      ),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.only(top: 88),
+                    child: loadingWidget("No Employee Details Found"),
                   ),
-                ),
-              ),
-            ),
           ],
         ),
       ),

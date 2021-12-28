@@ -21,6 +21,7 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
   final cityController = TextEditingController();
   final companyNameController = TextEditingController();
   String dateString = "DD-MM-YYYY";
+  String totalCustomer = "0";
   var name = [];
   var address = [];
   var date = [];
@@ -261,7 +262,20 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
                     await post(url, body: jsonEncode(body)).then((value) {
                       print("Value :: ${value.body}");
                       if (value.body.toString() == "done") {
+                        nameController.clear();
+                        gstNUmberController.clear();
+                        addressController.clear();
+                        phoneNumberController.clear();
+                        emailController.clear();
+                        stateController.clear();
+                        companyNameController.clear();
+                        cityController.clear();
+                        showSnackbar(context, "Customer Added Successfully.",
+                            Colors.green);
                         getCustomer();
+                      } else {
+                        showSnackbar(
+                            context, "Something went incorrect.", Colors.red);
                       }
                     });
                   },
@@ -289,25 +303,41 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
                 ),
               ),
             ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 22, left: 0, right: 14),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columnSpacing: 28.0,
-                    columns: List.generate(title.length, (index) {
-                      return DataColumn(
-                          label: Text(title[index].toString(),
-                              style: TextStyle(fontWeight: FontWeight.bold)));
-                    }),
-                    rows: List.generate(
-                        name.length, (index) => _getDataRow(index)),
-                  ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20, top: 6),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  "Total Customer $totalCustomer",
+                  style: TextStyle(fontSize: 16, color: colorBlack5),
                 ),
               ),
             ),
+            name.length > 0
+                ? Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.only(top: 22, left: 0, right: 14),
+                      child: FittedBox(
+                        child: DataTable(
+                          columnSpacing: 28.0,
+                          columns: List.generate(title.length, (index) {
+                            return DataColumn(
+                                label: Text(title[index].toString(),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold)));
+                          }),
+                          rows: List.generate(
+                              name.length, (index) => _getDataRow(index)),
+                        ),
+                      ),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.only(top: 88),
+                    child: loadingWidget("No Customer Found"),
+                  ),
           ],
         ),
       ),
@@ -359,6 +389,8 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
       // 'phone_number'=>$phone_number,
       // 'email'=>$email,
       //
+
+      totalCustomer = getJsonLength(value.body).toString();
 
       for (int i = 0; i < getJsonLength(value.body); i++) {
         name.add(jsonData[i]["name"]);
