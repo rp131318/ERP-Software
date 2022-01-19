@@ -9,6 +9,7 @@ import 'dart:io' as Io;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import '../globalVariable.dart';
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 
 class RawMaterialPage extends StatefulWidget {
   @override
@@ -50,7 +51,7 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
   String rawNameDropdown = "Select";
   List<String> filterList = ["All", "Today"];
   List<String> rawNameList = ["Select"];
-
+  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
   int currentQty = 0;
 
   int nextPage = 0;
@@ -62,15 +63,18 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
     getData();
   }
 
+  final _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldkey,
       body: nextPage == 0
           ? ProgressHUD(
               isLoading: isLoading,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+              child: DraggableScrollbar.rrect(
+                controller: _scrollController,
+                child: ListView(
+                  controller: _scrollController,
                   children: [
                     Padding(
                       padding:
@@ -420,7 +424,38 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
                           ),
                           isIcon: true,
                           buttonText: "Add",
-                          function: uploadFunction,
+                          function: () {
+                            showDialog<void>(
+                              context: context,
+                              barrierDismissible:
+                                  false, // user must tap button!
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text(
+                                    'Final Submit !',
+                                    style: TextStyle(color: Colors.orange),
+                                  ),
+                                  content: Text(
+                                      "Are you sure that you have enter details are correct ?"),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text("No"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        Navigator.pop(context);
+                                        uploadFunction();
+                                      },
+                                      child: Text("Yes"),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
                           left: 0,
                           right: 0,
                           width: 100,
@@ -605,9 +640,27 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
         }),
         DataCell(SizedBox(
           width: 200,
-          child: Text("${name[index]}"),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () {
+                  showDeleteDialog(index);
+                },
+                child: Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                ),
+              ),
+              SizedBox(
+                width: 12,
+              ),
+              Text("${name[index]}"),
+            ],
+          ),
         )),
-        DataCell(Text("${qnt[index]}")),
+        DataCell(
+          Text("${qnt[index]}"),
+        ),
         DataCell(Text("${outArray[index]}")),
         DataCell(Text("${remaining[index]}")),
         DataCell(Text("${partNumber[index]}")),
@@ -625,6 +678,42 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
           ),
         ),
       ],
+    );
+  }
+
+  void showDeleteDialog(int index) {
+    print("Index :: $index");
+    print("Index :: ${id[index]}");
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Delete !',
+            style: TextStyle(color: Colors.red),
+          ),
+          content: Text("Do you really want to delete?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("No"),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await deleteApi("raw", "${id[index]}");
+                showSnackbar(_scaffoldkey.currentContext, "Delete successfully",
+                    Colors.green);
+                getData();
+              },
+              child: Text("Yes"),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -676,6 +765,8 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
     date.clear();
     outArray.clear();
     remaining.clear();
+    id.clear();
+    setState(() {});
     DateTime now = DateTime.now();
     String sendDate = "${now.day}-${now.month}-${now.year}";
     Uri url;

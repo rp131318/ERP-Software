@@ -9,6 +9,7 @@ import 'package:http/http.dart';
 import 'dart:io' as Io;
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 
 class FinishProductPage extends StatefulWidget {
   @override
@@ -23,6 +24,8 @@ class _FinishProductPageState extends State<FinishProductPage> {
   final finishQntController = TextEditingController();
   final dateController = TextEditingController();
   final hsnCodeController = TextEditingController();
+  final _scrollController = ScrollController();
+  final _scrollController1 = ScrollController();
   int currentPage = 0;
   String rawMaterialDropdown = "Select";
   String finishProductDropdown = "Select";
@@ -201,9 +204,10 @@ class _FinishProductPageState extends State<FinishProductPage> {
   addNewFinishProduct() {
     return Stack(
       children: [
-        SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+        DraggableScrollbar.rrect(
+          controller: _scrollController1,
+          child: ListView(
+            controller: _scrollController1,
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 18, bottom: 18, top: 18),
@@ -477,9 +481,10 @@ class _FinishProductPageState extends State<FinishProductPage> {
   addFinalFinishProduct() {
     return Stack(
       children: [
-        SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+        DraggableScrollbar.rrect(
+          controller: _scrollController,
+          child: ListView(
+            controller: _scrollController,
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 18, bottom: 18, top: 18),

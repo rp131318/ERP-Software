@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:erp_software/Widgets/button_widget.dart';
+import 'package:erp_software/Widgets/delete_button_widget.dart';
 import 'package:erp_software/Widgets/progressHud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import '../globalVariable.dart';
 import 'package:http/http.dart';
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 
 class AttendancePage extends StatefulWidget {
   const AttendancePage({Key key}) : super(key: key);
@@ -43,6 +45,7 @@ class _AttendancePageState extends State<AttendancePage> {
   var outDate = [];
   var remark = [];
   var date = [];
+  var id = [];
 
   bool isLoading = false;
 
@@ -51,23 +54,53 @@ class _AttendancePageState extends State<AttendancePage> {
 
   String todayDate = "DD:MM:YYYY";
 
+  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
+
+  int incre = 0;
+  bool apiCall = true;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     todayDate =
         "${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}";
-
     getAttendance();
+    _scrollController = ScrollController()
+      ..addListener(() {
+        // customPrint("offset = ${_scrollController.offset}");
+        double defrence = _scrollController.position.maxScrollExtent -
+            _scrollController.offset.toDouble();
+        print("defrence = $defrence");
+        // customPrint("lunchVideoId = ${lunchVideoId.length}");
+        if (defrence.toDouble() < 300.0 && apiCall) {
+          apiCall = false;
+          setState(() {});
+          print("offset = ${_scrollController.offset}");
+          incre = incre + 20;
+          if (filterDropdown == "Today") {
+            getAttendance("date", "", false);
+          } else if (filterDropdown == "All") {
+            getAttendance(filterDropdown.toLowerCase(), "", false);
+          } else {
+            getAttendance("select", filterDropdown, false);
+          }
+        }
+      });
   }
+
+  var _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldkey,
       body: ProgressHUD(
         isLoading: isLoading,
-        child: SingleChildScrollView(
-          child: Column(
+        child: DraggableScrollbar.rrect(
+          controller: _scrollController,
+          child: ListView(
+            controller: _scrollController,
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 18, bottom: 18, left: 18),
@@ -482,11 +515,56 @@ class _AttendancePageState extends State<AttendancePage> {
     );
   }
 
+  void showDeleteDialog(int index) {
+    print("Index :: $index");
+    print("Index :: ${id[index]}");
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Delete !',
+            style: TextStyle(color: Colors.red),
+          ),
+          content: Text("Do you really want to delete?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("No"),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await deleteApi("attendence", "${id[index]}");
+                showSnackbar(_scaffoldkey.currentContext, "Delete successfully",
+                    Colors.green);
+                getAttendance();
+              },
+              child: Text("Yes"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   DataRow _getDataRow(index) {
     return DataRow(
       cells: <DataCell>[
         DataCell(Text("${index + 1}")),
-        DataCell(Text("${name[index]}")),
+        DataCell(Row(
+          children: [
+            DeleteButton(
+              function: () {
+                showDeleteDialog(index);
+              },
+            ),
+            Text("${name[index]}"),
+          ],
+        )),
         DataCell(Text("${inDate[index]}")),
         DataCell(InkWell(
           onTap: () {
@@ -560,12 +638,17 @@ class _AttendancePageState extends State<AttendancePage> {
     }, currentTime: DateTime.now(), locale: LocaleType.en);
   }
 
-  void getAttendance([String type = "date", String _name = ""]) {
-    name.clear();
-    date.clear();
-    inDate.clear();
-    outDate.clear();
-    remark.clear();
+  void getAttendance(
+      [String type = "date", String _name = "", bool condition = true]) {
+    if (condition) {
+      name.clear();
+      date.clear();
+      inDate.clear();
+      outDate.clear();
+      remark.clear();
+      id.clear();
+    }
+    setState(() {});
     DateTime now = DateTime.now();
     String sendDate = "${now.day}-${now.month}-${now.year}";
     Uri url;
@@ -577,13 +660,17 @@ class _AttendancePageState extends State<AttendancePage> {
     // }
 
     if (type == "select") {
-      url = Uri.parse(
-          APIUrl.mainUrl + APIUrl.getAttendance + "?type=$type&name=$_name");
+      url = Uri.parse(APIUrl.mainUrl +
+          APIUrl.getAttendance +
+          "?type=$type&name=$_name&start=${incre + 0}&end=${incre + 20}");
     } else if (type == "all") {
-      url = Uri.parse(APIUrl.mainUrl + APIUrl.getAttendance + "?type=$type");
+      url = Uri.parse(APIUrl.mainUrl +
+          APIUrl.getAttendance +
+          "?type=$type&start=${incre + 0}&end=${incre + 20}");
     } else {
-      url = Uri.parse(
-          APIUrl.mainUrl + APIUrl.getAttendance + "?type=$type&date=$sendDate");
+      url = Uri.parse(APIUrl.mainUrl +
+          APIUrl.getAttendance +
+          "?type=$type&date=$sendDate&start=${incre + 0}&end=${incre + 20}");
     }
 
     get(url).then((value) {
@@ -596,11 +683,14 @@ class _AttendancePageState extends State<AttendancePage> {
         inDate.add(jsonData[i]["in_time"]);
         outDate.add(jsonData[i]["out_time"]);
         remark.add(jsonData[i]["remark"]);
+        id.add(jsonData[i]["id"]);
         setState(() {
-          // isLoading = false;
+          apiCall = true;
         });
       }
-      setState(() {});
+      setState(() {
+        apiCall = true;
+      });
     });
     url = Uri.parse(APIUrl.mainUrl + APIUrl.getEmployee);
     get(url).then((value) {
@@ -615,10 +705,12 @@ class _AttendancePageState extends State<AttendancePage> {
           nameList.add(jsonData[i]["name"]);
         }
         setState(() {
-          // isLoading = false;
+          apiCall = true;
         });
       }
-      setState(() {});
+      setState(() {
+        apiCall = true;
+      });
     });
   }
 }

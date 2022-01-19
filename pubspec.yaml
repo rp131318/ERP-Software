@@ -43,6 +43,7 @@ dev_dependencies:
   open_file: any
   number_to_words: ^1.0.0
   shared_preferences: ^2.0.11
+  draggable_scrollbar: ^0.1.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

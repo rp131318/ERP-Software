@@ -7,6 +7,7 @@ import 'package:erp_software/Tab%20Pages/sales_details_page.dart';
 import 'package:erp_software/Tab%20Pages/sell_purchase_page.dart';
 import 'package:erp_software/Tab%20Pages/tab_home_page.dart';
 import 'package:erp_software/globalVariable.dart';
+import 'package:erp_software/login_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:filepicker_windows/filepicker_windows.dart';
@@ -81,9 +82,31 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(
                     height: 22,
                   ),
-                  Text(
-                    loginType,
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        loginType,
+                        style: TextStyle(
+                            fontSize: 30, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        width: 12,
+                      ),
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginPage()),
+                          );
+                        },
+                        child: Icon(
+                          Icons.logout,
+                          size: 33,
+                        ),
+                      )
+                    ],
                   ),
                   ListView.builder(
                       itemCount: buttonArray.length,

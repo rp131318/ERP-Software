@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:erp_software/Widgets/button_widget.dart';
+import 'package:erp_software/Widgets/delete_button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import '../globalVariable.dart';
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class CustumerDetailsPage extends StatefulWidget {
@@ -20,8 +24,10 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
   final stateController = TextEditingController();
   final cityController = TextEditingController();
   final companyNameController = TextEditingController();
+  final updateDataController = TextEditingController();
   String dateString = "DD-MM-YYYY";
   String totalCustomer = "0";
+  var id = [];
   var name = [];
   var address = [];
   var date = [];
@@ -43,19 +49,42 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
     "Company",
     "Date"
   ];
+  var _scrollController = ScrollController();
+  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
+  int incre = 0;
+  bool apiCall = true;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getCustomer();
+
+    _scrollController = ScrollController()
+      ..addListener(() {
+        // customPrint("offset = ${_scrollController.offset}");
+        double defrence = _scrollController.position.maxScrollExtent -
+            _scrollController.offset.toDouble();
+        print("defrence = $defrence");
+        // customPrint("lunchVideoId = ${lunchVideoId.length}");
+        if (defrence.toDouble() < 300.0 && apiCall) {
+          apiCall = false;
+          setState(() {});
+          print("offset = ${_scrollController.offset}");
+          incre = incre + 20;
+          getCustomer(false);
+        }
+      });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
+      key: _scaffoldkey,
+      body: DraggableScrollbar.rrect(
+        controller: _scrollController,
+        child: ListView(
+          controller: _scrollController,
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 18, bottom: 18, left: 18),
@@ -354,45 +383,69 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
   DataRow _getDataRow(index) {
     return DataRow(
       cells: <DataCell>[
-        DataCell(Text("${index + 1}")),
-        DataCell(Text("${name[index]}")),
-        DataCell(Text("${address[index]}")),
-        DataCell(Text("${phoneNumber[index]}")),
-        DataCell(Text("${email[index]}")),
-        DataCell(Text("${gst[index]}")),
-        DataCell(Text("${state[index]}")),
-        DataCell(Text("${city[index]}")),
-        DataCell(Text("${company[index]}")),
+        DataCell(Row(
+          children: [
+            DeleteButton(
+              function: () {
+                showDeleteDialog(index);
+              },
+            ),
+            Text("${index + 1}")
+          ],
+        )),
+        DataCell(Text("${name[index]}"), showEditIcon: true, onTap: () {
+          showUpdateDialog(index, "Name");
+        }),
+        DataCell(Text("${address[index]}"), showEditIcon: true, onTap: () {
+          showUpdateDialog(index, "Address");
+        }),
+        DataCell(Text("${phoneNumber[index]}"), showEditIcon: true, onTap: () {
+          showUpdateDialog(index, "Phone Number");
+        }),
+        DataCell(Text("${email[index]}"), showEditIcon: true, onTap: () {
+          showUpdateDialog(index, "Email");
+        }),
+        DataCell(Text("${gst[index]}"), showEditIcon: true, onTap: () {
+          showUpdateDialog(index, "GST No.");
+        }),
+        DataCell(Text("${state[index]}"), showEditIcon: true, onTap: () {
+          showUpdateDialog(index, "State");
+        }),
+        DataCell(Text("${city[index]}"), showEditIcon: true, onTap: () {
+          showUpdateDialog(index, "City");
+        }),
+        DataCell(Text("${company[index]}"), showEditIcon: true, onTap: () {
+          showUpdateDialog(index, "Company");
+        }),
         DataCell(Text("${date[index]}")),
       ],
     );
   }
 
-  void getCustomer() {
-    name.clear();
-    address.clear();
-    gst.clear();
-    date.clear();
-    phoneNumber.clear();
-    email.clear();
-    Uri url = Uri.parse(APIUrl.mainUrl + APIUrl.getCustomer);
-    get(url).then((value) {
-      print("Customer :: ${value.body}");
+  Future<void> getCustomer([bool condition = true]) async {
+    if (condition) {
+      name.clear();
+      address.clear();
+      gst.clear();
+      date.clear();
+      phoneNumber.clear();
+      email.clear();
+      state.clear();
+      city.clear();
+      id.clear();
+      company.clear();
+    }
+    setState(() {});
+    Uri url = Uri.parse(APIUrl.mainUrl +
+        APIUrl.getCustomer +
+        "?start=${0 + incre}&end=${20 + incre}");
+    await get(url).then((value) {
+      log("Customer :: ${value.body}");
       final jsonData = jsonDecode(value.body);
       print("Len :: ${getJsonLength(value.body)}");
 
-      // 'id'=>$id,
-      // 'name'=>$name,
-      // 'gst'=>$gst_num,
-      // 'address'=>$address,
-      // 'date'=>$date,
-      // 'phone_number'=>$phone_number,
-      // 'email'=>$email,
-      //
-
-      totalCustomer = getJsonLength(value.body).toString();
-
       for (int i = 0; i < getJsonLength(value.body); i++) {
+        id.add(jsonData[i]["id"]);
         name.add(jsonData[i]["name"]);
         address.add(jsonData[i]["address"]);
         gst.add(jsonData[i]["gst"]);
@@ -403,15 +456,14 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
         city.add(jsonData[i]["city"]);
         company.add(jsonData[i]["com_name"]);
         setState(() {
-          // isLoading = false;
+          totalCustomer = name.length.toString();
+          apiCall = true;
         });
       }
-      setState(() {
-        // name.reversed;
-        // qnt.reversed;
-        // qnt.reversed;
-        // qnt.reversed;
-      });
+      setState(() {});
+    });
+    setState(() {
+      apiCall = true;
     });
   }
 
@@ -440,5 +492,209 @@ class _CustumerDetailsPageState extends State<CustumerDetailsPage> {
         dateString = "${date.day}-${date.month}-${date.year}";
       });
     }, currentTime: DateTime.now(), locale: LocaleType.en);
+  }
+
+  void showDeleteDialog(int index) {
+    print("Index :: $index");
+    print("Index :: ${id[index]}");
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Delete !',
+            style: TextStyle(color: Colors.red),
+          ),
+          content: Text("Do you really want to delete?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("No"),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await deleteApi("customer", "${id[index]}");
+                showSnackbar(_scaffoldkey.currentContext, "Delete successfully",
+                    Colors.green);
+                getCustomer();
+              },
+              child: Text("Yes"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showUpdateDialog(int index, String userField) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Update Details !',
+            style: TextStyle(color: Colors.deepOrangeAccent),
+          ),
+          content: Container(
+            child: titleTextField(userField, updateDataController),
+            height: double.minPositive + 55,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                var jsonBody = {
+                  "id": "${id[index]}",
+                  "name": "${name[index]}",
+                  "gst_num": "${gst[index]}",
+                  "address": "${address[index]}",
+                  "state": "${state[index]}",
+                  "city": "${city[index]}",
+                  "com_name": "${company[index]}",
+                  "number": "${phoneNumber[index]}",
+                  "email": "${email[index]}",
+                  "location": "customer",
+                };
+
+                switch (userField) {
+                  case "Name":
+                    jsonBody = {
+                      "id": "${id[index]}",
+                      "name": "${updateDataController.text}",
+                      "gst_num": "${gst[index]}",
+                      "address": "${address[index]}",
+                      "state": "${state[index]}",
+                      "city": "${city[index]}",
+                      "com_name": "${company[index]}",
+                      "number": "${phoneNumber[index]}",
+                      "email": "${email[index]}",
+                      "location": "customer",
+                    };
+                    break;
+                  case "Address":
+                    jsonBody = {
+                      "id": "${id[index]}",
+                      "name": "${name[index]}",
+                      "gst_num": "${gst[index]}",
+                      "address": "${updateDataController.text}",
+                      "state": "${state[index]}",
+                      "city": "${city[index]}",
+                      "com_name": "${company[index]}",
+                      "number": "${phoneNumber[index]}",
+                      "email": "${email[index]}",
+                      "location": "customer",
+                    };
+                    break;
+                  case "Phone Number":
+                    jsonBody = {
+                      "id": "${id[index]}",
+                      "name": "${name[index]}",
+                      "gst_num": "${gst[index]}",
+                      "address": "${address[index]}",
+                      "state": "${state[index]}",
+                      "city": "${city[index]}",
+                      "com_name": "${company[index]}",
+                      "number": "${updateDataController.text}",
+                      "email": "${email[index]}",
+                      "location": "customer",
+                    };
+                    break;
+                  case "Email":
+                    jsonBody = {
+                      "id": "${id[index]}",
+                      "name": "${name[index]}",
+                      "gst_num": "${gst[index]}",
+                      "address": "${address[index]}",
+                      "state": "${state[index]}",
+                      "city": "${city[index]}",
+                      "com_name": "${company[index]}",
+                      "number": "${phoneNumber[index]}",
+                      "email": "${updateDataController.text}",
+                      "location": "customer",
+                    };
+                    break;
+                  case "GST No.":
+                    jsonBody = {
+                      "id": "${id[index]}",
+                      "name": "${name[index]}",
+                      "gst_num": "${updateDataController.text}",
+                      "address": "${address[index]}",
+                      "state": "${state[index]}",
+                      "city": "${city[index]}",
+                      "com_name": "${company[index]}",
+                      "number": "${phoneNumber[index]}",
+                      "email": "${email[index]}",
+                      "location": "customer",
+                    };
+                    break;
+                  case "State":
+                    jsonBody = {
+                      "id": "${id[index]}",
+                      "name": "${name[index]}",
+                      "gst_num": "${gst[index]}",
+                      "address": "${address[index]}",
+                      "state": "${updateDataController.text}",
+                      "city": "${city[index]}",
+                      "com_name": "${company[index]}",
+                      "number": "${phoneNumber[index]}",
+                      "email": "${email[index]}",
+                      "location": "customer",
+                    };
+                    break;
+                  case "City":
+                    jsonBody = {
+                      "id": "${id[index]}",
+                      "name": "${name[index]}",
+                      "gst_num": "${gst[index]}",
+                      "address": "${address[index]}",
+                      "state": "${state[index]}",
+                      "city": "${updateDataController.text}",
+                      "com_name": "${company[index]}",
+                      "number": "${phoneNumber[index]}",
+                      "email": "${email[index]}",
+                      "location": "customer",
+                    };
+                    break;
+                  case "Company":
+                    jsonBody = {
+                      "id": "${id[index]}",
+                      "name": "${name[index]}",
+                      "gst_num": "${gst[index]}",
+                      "address": "${address[index]}",
+                      "state": "${state[index]}",
+                      "city": "${city[index]}",
+                      "com_name": "${updateDataController.text}",
+                      "number": "${phoneNumber[index]}",
+                      "email": "${email[index]}",
+                      "location": "customer",
+                    };
+                    break;
+                }
+
+                updateDataController.clear();
+
+                await updateApi(jsonBody);
+
+                showSnackbar(_scaffoldkey.currentContext, "Update successfully",
+                    Colors.green);
+                getCustomer();
+              },
+              child: Text("Ok"),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:erp_software/Widgets/button_widget.dart';
+import 'package:erp_software/Widgets/delete_button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import '../globalVariable.dart';
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 
 class EmplyoeeDetailsPage extends StatefulWidget {
   @override
@@ -19,6 +21,7 @@ class _EmplyoeeDetailsPageState extends State<EmplyoeeDetailsPage> {
   final gstNUmberController = TextEditingController();
   final designationController = TextEditingController();
   final employeIdController = TextEditingController();
+  final updateDataController = TextEditingController();
 
   var name = [];
   var address = [];
@@ -27,6 +30,7 @@ class _EmplyoeeDetailsPageState extends State<EmplyoeeDetailsPage> {
   var email = [];
   var gst = [];
   var designation = [];
+  var id = [];
   var title = [
     "Sr. No.",
     "Name",
@@ -35,6 +39,7 @@ class _EmplyoeeDetailsPageState extends State<EmplyoeeDetailsPage> {
     "Email",
     "Designation",
   ];
+  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -43,11 +48,16 @@ class _EmplyoeeDetailsPageState extends State<EmplyoeeDetailsPage> {
     getCustomer();
   }
 
+  final _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
+      key: _scaffoldkey,
+      body: DraggableScrollbar.rrect(
+        controller: _scrollController,
+        child: ListView(
+          controller: _scrollController,
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 18, bottom: 18, left: 18),
@@ -219,13 +229,177 @@ class _EmplyoeeDetailsPageState extends State<EmplyoeeDetailsPage> {
   DataRow _getDataRow(index) {
     return DataRow(
       cells: <DataCell>[
-        DataCell(Text("${index + 1}")),
-        DataCell(Text("${name[index]}")),
-        DataCell(Text("${address[index]}")),
-        DataCell(Text("${phoneNumber[index]}")),
-        DataCell(Text("${email[index]}")),
-        DataCell(Text("${designation[index]}")),
+        DataCell(Row(
+          children: [
+            DeleteButton(
+              function: () {
+                showDeleteDialog(index);
+              },
+            ),
+            Text("${index + 1}"),
+          ],
+        )),
+        DataCell(Text("${name[index]}"), showEditIcon: true, onTap: () {
+          showUpdateDialog(index, "Name");
+        }),
+        DataCell(Text("${address[index]}"), showEditIcon: true, onTap: () {
+          showUpdateDialog(index, "Address");
+        }),
+        DataCell(Text("${phoneNumber[index]}"), showEditIcon: true, onTap: () {
+          showUpdateDialog(index, "Phone Number");
+        }),
+        DataCell(Text("${email[index]}"), showEditIcon: true, onTap: () {
+          showUpdateDialog(index, "Email");
+        }),
+        DataCell(Text("${designation[index]}"), showEditIcon: true, onTap: () {
+          showUpdateDialog(index, "Designation");
+        }),
       ],
+    );
+  }
+
+  void showUpdateDialog(int index, String userField) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Update Details !',
+            style: TextStyle(color: Colors.deepOrangeAccent),
+          ),
+          content: Container(
+            child: titleTextField(userField, updateDataController),
+            height: double.minPositive + 55,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+
+                var jsonBody = {
+                  "id": "${id[index]}",
+                  "name": "${name[index]}",
+                  "address": "${address[index]}",
+                  "number": "${phoneNumber[index]}",
+                  "email": "${email[index]}",
+                  "designation": "${designation[index]}",
+                  "location": "employee",
+                };
+
+                switch (userField) {
+                  case "Name":
+                    jsonBody = {
+                      "id": "${id[index]}",
+                      "name": "${updateDataController.text}",
+                      "address": "${address[index]}",
+                      "number": "${phoneNumber[index]}",
+                      "email": "${email[index]}",
+                      "designation": "${designation[index]}",
+                      "location": "employee",
+                    };
+                    break;
+                  case "Address":
+                    jsonBody = {
+                      "id": "${id[index]}",
+                      "name": "${name[index]}",
+                      "address": "${updateDataController.text}",
+                      "number": "${phoneNumber[index]}",
+                      "email": "${email[index]}",
+                      "designation": "${designation[index]}",
+                      "location": "employee",
+                    };
+                    break;
+                  case "Phone Number":
+                    jsonBody = {
+                      "id": "${id[index]}",
+                      "name": "${name[index]}",
+                      "address": "${address[index]}",
+                      "number": "${updateDataController.text}",
+                      "email": "${email[index]}",
+                      "designation": "${designation[index]}",
+                      "location": "employee",
+                    };
+                    break;
+                  case "Email":
+                    jsonBody = {
+                      "id": "${id[index]}",
+                      "name": "${name[index]}",
+                      "address": "${address[index]}",
+                      "number": "${phoneNumber[index]}",
+                      "email": "${updateDataController.text}",
+                      "designation": "${designation[index]}",
+                      "location": "employee",
+                    };
+                    break;
+                  case "Designation":
+                    jsonBody = {
+                      "id": "${id[index]}",
+                      "name": "${name[index]}",
+                      "address": "${address[index]}",
+                      "number": "${phoneNumber[index]}",
+                      "email": "${updateDataController.text}",
+                      "designation": "${updateDataController.text}",
+                      "location": "employee",
+                    };
+                    break;
+                }
+
+                updateDataController.clear();
+
+                await updateApi(jsonBody);
+
+                showSnackbar(_scaffoldkey.currentContext, "Update successfully",
+                    Colors.green);
+                getCustomer();
+              },
+              child: Text("Ok"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showDeleteDialog(int index) {
+    print("Index :: $index");
+    print("Index :: ${id[index]}");
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Delete !',
+            style: TextStyle(color: Colors.red),
+          ),
+          content: Text("Do you really want to delete?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("No"),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await deleteApi("employee", "${id[index]}");
+                showSnackbar(_scaffoldkey.currentContext, "Delete successfully",
+                    Colors.green);
+                getCustomer();
+              },
+              child: Text("Yes"),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -235,6 +409,8 @@ class _EmplyoeeDetailsPageState extends State<EmplyoeeDetailsPage> {
     phoneNumber.clear();
     email.clear();
     designation.clear();
+    id.clear();
+    setState(() {});
     Uri url = Uri.parse(APIUrl.mainUrl + APIUrl.getEmployee);
     get(url).then((value) {
       print("Customer :: ${value.body}");
@@ -247,6 +423,7 @@ class _EmplyoeeDetailsPageState extends State<EmplyoeeDetailsPage> {
         designation.add(jsonData[i]["designation"]);
         phoneNumber.add(jsonData[i]["number"]);
         email.add(jsonData[i]["email"]);
+        id.add(jsonData[i]["id"]);
         setState(() {
           // isLoading = false;
         });

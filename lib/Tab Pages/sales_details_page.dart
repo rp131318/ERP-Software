@@ -60,79 +60,81 @@ class _SalesDetailsPageState extends State<SalesDetailsPage> {
     return Scaffold(
       body: ProgressHUD(
         isLoading: isLoading,
-        child: SingleChildScrollView(
-          child: Stack(
-            children: [
-              currentPage == 0
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Center(
-                          child: Container(
-                            width: 155,
-                            height: 155,
-                            margin: EdgeInsets.only(top: 111),
-                            padding: EdgeInsets.all(12),
-                            color: Color(0xfff2f2f2),
-                            child: InkWell(
-                              onTap: () {
-                                getPakkaBillDetails();
-                                setState(() {
-                                  currentPage = 1;
-                                });
-                              },
-                              child: Column(
-                                children: [
-                                  Icon(Icons.sell_rounded,
-                                      size: 66, color: colorBlack5),
-                                  Text(
-                                    "Sold Products",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold),
-                                  )
-                                ],
+        child: Scrollbar(
+          child: SingleChildScrollView(
+            child: Stack(
+              children: [
+                currentPage == 0
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Center(
+                            child: Container(
+                              width: 155,
+                              height: 155,
+                              margin: EdgeInsets.only(top: 111),
+                              padding: EdgeInsets.all(12),
+                              color: Color(0xfff2f2f2),
+                              child: InkWell(
+                                onTap: () {
+                                  getPakkaBillDetails();
+                                  setState(() {
+                                    currentPage = 1;
+                                  });
+                                },
+                                child: Column(
+                                  children: [
+                                    Icon(Icons.sell_rounded,
+                                        size: 66, color: colorBlack5),
+                                    Text(
+                                      "Sold Products",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        Center(
-                          child: Container(
-                            width: 155,
-                            height: 155,
-                            margin: EdgeInsets.only(top: 44),
-                            padding: EdgeInsets.all(12),
-                            color: Color(0xfff2f2f2),
-                            child: InkWell(
-                              onTap: () {
-                                getKacchaBillDetails();
-                                setState(() {
-                                  currentPage = 2;
-                                });
-                              },
-                              child: Column(
-                                children: [
-                                  Icon(Icons.mode_standby_rounded,
-                                      size: 66, color: colorBlack5),
-                                  Text(
-                                    "Standby Products",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold),
-                                  )
-                                ],
+                          Center(
+                            child: Container(
+                              width: 155,
+                              height: 155,
+                              margin: EdgeInsets.only(top: 44),
+                              padding: EdgeInsets.all(12),
+                              color: Color(0xfff2f2f2),
+                              child: InkWell(
+                                onTap: () {
+                                  getKacchaBillDetails();
+                                  setState(() {
+                                    currentPage = 2;
+                                  });
+                                },
+                                child: Column(
+                                  children: [
+                                    Icon(Icons.mode_standby_rounded,
+                                        size: 66, color: colorBlack5),
+                                    Text(
+                                      "Standby Products",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    )
-                  : currentPage == 1
-                      ? soldProducts()
-                      : standByProducts(),
-            ],
+                        ],
+                      )
+                    : currentPage == 1
+                        ? soldProducts()
+                        : standByProducts(),
+              ],
+            ),
           ),
         ),
       ),

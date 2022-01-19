@@ -3,7 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../globalVariable.dart';
 import 'dart:convert';
 import 'package:http/http.dart';
-
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import '../sell_purchase_page.dart';
 
 class PurchasePage extends StatefulWidget {
@@ -50,6 +50,7 @@ class _PurchasePageState extends State<PurchasePage> {
     "november",
     "december"
   ];
+  final _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -62,8 +63,10 @@ class _PurchasePageState extends State<PurchasePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: currentPage == 0
-          ? SingleChildScrollView(
-              child: Column(
+          ? DraggableScrollbar.rrect(
+              controller: _scrollController,
+              child: ListView(
+                controller: _scrollController,
                 children: [
                   Padding(
                     padding:

@@ -4,8 +4,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
+import 'dart:developer' as rahul;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart';
 
 String surveyNumberText = "-";
 String nameText = "-";
@@ -157,12 +159,15 @@ class APIUrl {
   //
   static String updateQntFinalProduct = "update_finish_product.php";
   static String getMarketing = "get_marketing.php";
+  static String deleteById = "delete_details/delete.php";
+  static String updateById = "update/update_details.php";
 
   //login https://breathemedicalsystems.com/inventory_management/login.php?name=breathe&password=Setupdev@1998
   static String login = "login.php";
 
   // https://breathemedicalsystems.com/inventory_management/delte_kaccha.php?name=5" Display
   static String deleteKachaBill = "delete_kaccha.php";
+
   //
   static String updatePaymentMode = "update_paymentmode.php";
   static String updateRawStand = "update_raw_stand.php";
@@ -170,7 +175,7 @@ class APIUrl {
   static String getStandByRaw = "get_standby.php";
   static String deleteStandByRaw = "delete_standby.php";
 
-  /*
+/*
   * https://breathemedicalsystems.com/inventory_management/update_paymentmode.php?payment_type=NEFT&bank=BOB&number=630337229616&id=16
   * send_rawstandby.php
   * update_raw_stand.php
@@ -498,4 +503,26 @@ class Data {
     this.organicCarbon,
     this.creationDate,
   });
+}
+
+// delete_details/delete.php
+Future<Response> deleteApi(String type, String id) async {
+  Uri url =
+      Uri.parse(APIUrl.mainUrl + APIUrl.deleteById + "?&location=$type&id=$id");
+  await get(url).then((value) {
+    rahul.log("deleteApi - $type :: ${value.body}");
+    return value.body;
+  });
+  // return null;
+}
+
+Future<Response> updateApi(var jsonBody) async {
+  Uri url = Uri.parse(APIUrl.mainUrl + APIUrl.updateById);
+  print("URL :: $url");
+  print("jsonBody :: ${jsonEncode(jsonBody)}");
+  await post(url, body: jsonEncode(jsonBody)).then((value) {
+    rahul.log("updateApi - ${jsonBody["location"]} :: ${value.body}");
+    return value.body;
+  });
+  // return null;
 }
