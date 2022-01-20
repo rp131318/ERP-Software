@@ -410,6 +410,7 @@ class _AttendancePageState extends State<AttendancePage> {
                       print("Link :: $url");
                       await post(url, body: jsonEncode(body)).then((value) {
                         print("Value :: ${value.body}");
+                        getAttendance();
                       });
                       // https://breathemedicalsystems.com/inventory_management/attendence_post.php
                     },
@@ -516,8 +517,8 @@ class _AttendancePageState extends State<AttendancePage> {
   }
 
   void showDeleteDialog(int index) {
-    print("Index :: $index");
-    print("Index :: ${id[index]}");
+    // print("Index :: $index");
+    // print("Index :: ${id[index]}");
     showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!

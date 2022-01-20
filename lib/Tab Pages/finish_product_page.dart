@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:erp_software/Widgets/button_widget.dart';
+import 'package:erp_software/Widgets/delete_button_widget.dart';
 import 'package:erp_software/Widgets/progressHud.dart';
 import 'package:flutter/material.dart';
 import 'package:filepicker_windows/filepicker_windows.dart';
@@ -35,6 +36,7 @@ class _FinishProductPageState extends State<FinishProductPage> {
   var name = [];
   var finishProductName = [];
   var finishProductRawData = [];
+  var idOfFinishDetails = [];
   var qnt = [];
   var date = [];
   var finishQnt = [];
@@ -60,7 +62,7 @@ class _FinishProductPageState extends State<FinishProductPage> {
 
   String filterDropdown = "Today";
   List<String> filterList = ["All", "Today"];
-
+  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
   int kmk = 0;
 
   @override
@@ -73,6 +75,7 @@ class _FinishProductPageState extends State<FinishProductPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldkey,
       body: ProgressHUD(
         isLoading: isLoading,
         child: currentPage == 0
@@ -901,44 +904,73 @@ class _FinishProductPageState extends State<FinishProductPage> {
                 context: context,
                 buttonText: "Submit",
                 function: () async {
-                  // try {
-                  if (validateField(context, finishQntController)) {
-                    setState(() {
-                      isLoading = true;
-                    });
-                    // for (int im = 0;
-                    //     im < int.parse(finishQntController.text);
-                    //     im++) {
-                    for (int i = 0; i < rawMaterialNameDatabase.length; i++) {
-                      Uri url = Uri.parse(APIUrl.mainUrl +
-                          APIUrl.availableRaw +
-                          "?name=${rawMaterialNameDatabase[i]}&date=$dateString");
-                      await get(url).then((value) async {
-                        print("Raw Materials :: ${value.body}");
+                  if (finishProductDropdown == "Select") {
+                    showSnackbar(
+                        context, "Select finish product name", Colors.red);
+                    return;
+                  }
+                  try {
+                    if (validateField(context, finishQntController) &&
+                        validateField(context, hsnCodeController)) {
+                      if (filePath.trim().isEmpty) {
+                        showSnackbar(context, "Please upload PO", Colors.red);
+                        return;
+                      }
+                      if (dateString == "DD-MM-YYYY") {
+                        showSnackbar(context, "Select date", Colors.red);
+                        return;
+                      }
 
-                        if (value.body.contains("Error description")) {
-                          //again
+                      setState(() {
+                        isLoading = true;
+                      });
+                      // for (int im = 0;
+                      //     im < int.parse(finishQntController.text);
+                      //     im++) {
+                      for (int i = 0; i < rawMaterialNameDatabase.length; i++) {
+                        Uri url = Uri.parse(APIUrl.mainUrl +
+                            APIUrl.availableRaw +
+                            "?name=${rawMaterialNameDatabase[i]}&date=$dateString");
+                        await get(url).then((value) async {
+                          print("Raw Materials :: ${value.body}");
 
-                          for (kmk = 0; kmk < 365; kmk++) {
-                            DateTime newDate = DateTime(
-                                    int.parse(dateString.split("-")[2]),
-                                    int.parse(dateString.split("-")[1]),
-                                    int.parse(dateString.split("-")[0]))
-                                .subtract(Duration(days: kmk));
+                          if (value.body.contains("Error description")) {
+                            //again
 
-                            Uri url = Uri.parse(APIUrl.mainUrl +
-                                APIUrl.availableRaw +
-                                "?name=${rawMaterialNameDatabase[i]}&date=${newDate.day}-${newDate.month}-${newDate.year}");
-                            print("Error description Url :: $url");
+                            for (kmk = 0; kmk < 365; kmk++) {
+                              DateTime newDate = DateTime(
+                                      int.parse(dateString.split("-")[2]),
+                                      int.parse(dateString.split("-")[1]),
+                                      int.parse(dateString.split("-")[0]))
+                                  .subtract(Duration(days: kmk));
 
-                            await get(url).then((value) {
-                              if (!(value.body.contains("Error description"))) {
-                                kmk = 400;
-                                // allAttemptDone = false;
-                                print(
-                                    "value.body of function 1 :: ${value.body}");
+                              Uri url = Uri.parse(APIUrl.mainUrl +
+                                  APIUrl.availableRaw +
+                                  "?name=${rawMaterialNameDatabase[i]}&date=${newDate.day}-${newDate.month}-${newDate.year}");
+                              print("Error description Url :: $url");
+
+                              await get(url).then((value) {
+                                if (!(value.body
+                                    .contains("Error description"))) {
+                                  kmk = 400;
+                                  // allAttemptDone = false;
+                                  print(
+                                      "value.body of function 1 :: ${value.body}");
+                                  function1(
+                                      value.body,
+                                      (int.parse(rawMaterialQntDatabase[i]
+                                                  .toString()) *
+                                              int.parse(
+                                                  finishQntController.text))
+                                          .toString(),
+                                      rawMaterialNameDatabase[i],
+                                      "${newDate.day}-${newDate.month}-${newDate.year}");
+                                }
+                              });
+
+                              if (kmk == 364) {
                                 function1(
-                                    value.body,
+                                    "0",
                                     (int.parse(rawMaterialQntDatabase[i]
                                                 .toString()) *
                                             int.parse(finishQntController.text))
@@ -946,84 +978,79 @@ class _FinishProductPageState extends State<FinishProductPage> {
                                     rawMaterialNameDatabase[i],
                                     "${newDate.day}-${newDate.month}-${newDate.year}");
                               }
-                            });
-
-                            if (kmk == 364) {
-                              function1(
-                                  "0",
-                                  (int.parse(rawMaterialQntDatabase[i]
-                                              .toString()) *
-                                          int.parse(finishQntController.text))
-                                      .toString(),
-                                  rawMaterialNameDatabase[i],
-                                  "${newDate.day}-${newDate.month}-${newDate.year}");
+                              //
                             }
+                          } else {
+                            // print("value.body :: ${value.body}");
+                            // print(
+                            //     "Value 1 :: ${int.parse(rawMaterialQntDatabase[i].toString())}");
+                            // print(
+                            //     "Value 2 :: ${int.parse(qntController.text).toString()}");
+                            // print(
+                            //     "Mult 1 :: ${(int.parse(rawMaterialQntDatabase[i].toString()) * int.parse(qntController.text)).toString()}");
                             //
+                            // print(
+                            //     "rawMaterialNameDatabase[i] :: ${rawMaterialNameDatabase[i]}");
+                            // print("dateString :: ${dateString}");
+
+                            function1(
+                                value.body.toString(),
+                                (int.parse(rawMaterialQntDatabase[i]
+                                            .toString()) *
+                                        int.parse(finishQntController.text))
+                                    .toString(),
+                                rawMaterialNameDatabase[i],
+                                "$dateString");
                           }
-                        } else {
-                          // print("value.body :: ${value.body}");
-                          // print(
-                          //     "Value 1 :: ${int.parse(rawMaterialQntDatabase[i].toString())}");
-                          // print(
-                          //     "Value 2 :: ${int.parse(qntController.text).toString()}");
-                          // print(
-                          //     "Mult 1 :: ${(int.parse(rawMaterialQntDatabase[i].toString()) * int.parse(qntController.text)).toString()}");
-                          //
-                          // print(
-                          //     "rawMaterialNameDatabase[i] :: ${rawMaterialNameDatabase[i]}");
-                          // print("dateString :: ${dateString}");
+                          if (i == rawMaterialNameDatabase.length - 1) {
+                            // if (im == int.parse(finishQntController.text) - 1) {
+                            await Future.delayed(const Duration(seconds: 2),
+                                () {
+                              String img64;
+                              if (filePath != " ") {
+                                final bytes =
+                                    Io.File('$filePath').readAsBytesSync();
+                                img64 = base64Encode(bytes);
+                              }
 
-                          function1(
-                              value.body.toString(),
-                              (int.parse(rawMaterialQntDatabase[i].toString()) *
-                                      int.parse(finishQntController.text))
-                                  .toString(),
-                              rawMaterialNameDatabase[i],
-                              "$dateString");
-                        }
-                        if (i == rawMaterialNameDatabase.length - 1) {
-                          // if (im == int.parse(finishQntController.text) - 1) {
-                          await Future.delayed(const Duration(seconds: 2), () {
-                            String img64;
-                            if (filePath != " ") {
-                              final bytes =
-                                  Io.File('$filePath').readAsBytesSync();
-                              img64 = base64Encode(bytes);
-                            }
+                              //upload to Database
 
-                            //upload to Database
+                              final body = {
+                                "name": "$finishProductDropdown",
+                                "serial_number": "no data",
+                                "quantity":
+                                    "${int.parse(finishQntController.text) + currentStockNumber}",
+                                "in_date": "$dateString",
+                                "bill_photo": "$img64",
+                                "hsn": "${hsnCodeController.text}",
+                              };
 
-                            final body = {
-                              "name": "$finishProductDropdown",
-                              "serial_number": "no data",
-                              "quantity":
-                                  "${int.parse(finishQntController.text) + currentStockNumber}",
-                              "in_date": "$dateString",
-                              "bill_photo": "$img64",
-                              "hsn": "${hsnCodeController.text}",
-                            };
+                              Uri url = Uri.parse(
+                                  APIUrl.mainUrl + APIUrl.finalProductUpload);
+                              post(url, body: jsonEncode(body)).then((value) {
+                                print("finalProductUpload :: ${value.body}");
 
-                            Uri url = Uri.parse(
-                                APIUrl.mainUrl + APIUrl.finalProductUpload);
-                            post(url, body: jsonEncode(body)).then((value) {
-                              print("finalProductUpload :: ${value.body}");
-
-                              getAllFinalProducts();
+                                getAllFinalProducts();
+                              });
                             });
-                          });
-                          // }
-                        }
-                      });
+                            // }
+                          }
+                        });
+                      }
+                      // }
+                      date.add(dateString);
+                      finishQnt.add(finishQntController.text);
+                      srNo.add(serialNumberController.text);
+                      setState(() {});
                     }
-                    // }
-                    date.add(dateString);
-                    finishQnt.add(finishQntController.text);
-                    srNo.add(serialNumberController.text);
-                    setState(() {});
+                  } catch (e) {
+                    setState(() {
+                      isLoading = false;
+                    });
+                    print("Error Message :: $e");
+                    showSnackbar(
+                        context, "Some unknown error has occur.", Colors.red);
                   }
-                  // } catch (e) {
-                  //   print("Error Message :: $e");
-                  // }
                 },
                 left: 0,
                 right: 0,
@@ -1114,9 +1141,16 @@ class _FinishProductPageState extends State<FinishProductPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: Text(
-                              "${finishProductList[index1 + 1]}",
-                              style: TextStyle(fontSize: 18),
+                            child: Row(
+                              children: [
+                                DeleteButton(function: () {
+                                  showDeleteDialog(index1);
+                                }),
+                                Text(
+                                  "${finishProductList[index1 + 1]}",
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ],
                             ),
                           ),
                           Expanded(
@@ -1190,6 +1224,46 @@ class _FinishProductPageState extends State<FinishProductPage> {
     );
   }
 
+  void showDeleteDialog(int index) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Delete !',
+            style: TextStyle(color: Colors.red),
+          ),
+          content: Text("Do you really want to delete?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("No"),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                print("index :: $index");
+                print(
+                    "idOfFinishDetails[index] :: ${idOfFinishDetails[index]}");
+                setState(() {
+                  isLoading = true;
+                });
+                await deleteApi("finish", "${idOfFinishDetails[index]}");
+                showSnackbar(_scaffoldkey.currentContext, "Delete successfully",
+                    Colors.green);
+                getAllProductsName();
+              },
+              child: Text("Yes"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void getRawMaterials() {
     Uri url = Uri.parse(APIUrl.mainUrl + APIUrl.getRaw + "?type=all");
     get(url).then((value) {
@@ -1210,6 +1284,7 @@ class _FinishProductPageState extends State<FinishProductPage> {
   void getAllProductsName() {
     finishProductRawData.clear();
     finishProductList.clear();
+    idOfFinishDetails.clear();
     finishProductList.add("Select");
 
     Uri url = Uri.parse(APIUrl.mainUrl + APIUrl.getFinishLinkRaw);
@@ -1222,10 +1297,18 @@ class _FinishProductPageState extends State<FinishProductPage> {
         setState(() {
           finishProductList.add(jsonDataOfProductName[i]["name"]);
           finishProductRawData.add(jsonDataOfProductName[i]["raw_data"]);
+          idOfFinishDetails.add(jsonDataOfProductName[i]["id"]);
           // print("rawMaterialShowDataName :: $rawMaterialShowDataName");
+          isLoading = false;
         });
-        print("finishProductRawData :: $finishProductRawData");
+        print("finishProductRawData :: $idOfFinishDetails");
       }
+      setState(() {
+        isLoading = false;
+      });
+    });
+    setState(() {
+      isLoading = false;
     });
   }
 

@@ -64,6 +64,7 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
   }
 
   final _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -375,10 +376,9 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
                               function: () {
                                 final file = OpenFilePicker()
                                   ..filterSpecification = {
-                                    'Word Document (*.doc)': '*.doc',
-                                    'Web Page (*.htm; *.html)': '*.htm;*.html',
-                                    'Text Document (*.txt)': '*.txt',
-                                    'All Files': '*.*'
+                                    'PDF Document (*.pdf)': '*.pdf',
+                                    // 'Word Document (*.doc)': '*.doc',
+                                    // 'All Files': '*.*'
                                   }
                                   ..defaultFilterIndex = 0
                                   ..defaultExtension = 'doc'
@@ -425,6 +425,41 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
                           isIcon: true,
                           buttonText: "Add",
                           function: () {
+                            if (rawNameDropdown == "Select") {
+                              showSnackbar(context, "Select raw material name",
+                                  Colors.red);
+                              return;
+                            }
+
+                            if (dateString == "DD-MM-YYYY") {
+                              showSnackbar(context, "Select date", Colors.red);
+                              return;
+                            }
+
+                            if (qntController.text.isEmpty) {
+                              showSnackbar(context,
+                                  "Enter raw material quantity", Colors.red);
+                              return;
+                            }
+
+                            if (partNumberController.text.isEmpty) {
+                              showSnackbar(context,
+                                  "Enter raw material quantity", Colors.red);
+                              return;
+                            }
+
+                            if (partNumberController.text.isEmpty) {
+                              showSnackbar(context,
+                                  "Enter raw material quantity", Colors.red);
+                              return;
+                            }
+
+                            if (filePath.trim().isEmpty) {
+                              showSnackbar(context, "Please upload bill photo",
+                                  Colors.red);
+                              return;
+                            }
+
                             showDialog<void>(
                               context: context,
                               barrierDismissible:
@@ -577,7 +612,19 @@ class _RawMaterialPageState extends State<RawMaterialPage> {
   DataRow _getDataRow(index) {
     return DataRow(
       cells: <DataCell>[
-        DataCell(Text("${index + 1}"), showEditIcon: true, onTap: () {
+        DataCell(
+            Row(
+              children: [
+                Icon(
+                  Icons.home_repair_service_rounded,
+                  color: Colors.deepOrangeAccent,
+                ),
+                SizedBox(
+                  width: 12,
+                ),
+                Text("${index + 1}"),
+              ],
+            ), onTap: () {
           AlertDialog alert = AlertDialog(
             // title: Text("Simple Alert"),
             content: Column(

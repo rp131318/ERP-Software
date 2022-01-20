@@ -79,7 +79,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getCustomer();
+    // getCustomer();
     getAllFinalProducts();
     getImage();
     // pdfTrial();
@@ -384,40 +384,173 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                         ),
                         Align(
                           alignment: Alignment.topLeft,
-                          child: Container(
-                            height: 26,
-                            width: 333,
-                            decoration: BoxDecoration(
-                                color: Color(0xfff2f2f2),
-                                // border: Border.all(width: 1, color: grey),
-                                borderRadius: BorderRadius.circular(0)),
-                            margin:
-                                EdgeInsets.only(left: 18, right: 18, top: 6),
-                            padding: EdgeInsets.only(left: 14),
-                            child: DropdownButton<String>(
-                              value: rawMaterialDropdown,
-                              dropdownColor: colorCard,
-                              elevation: 0,
-                              underline: Container(),
-                              icon: Container(),
-                              onChanged: (String newValue) {
-                                setState(() {
-                                  rawMaterialDropdown = newValue;
-                                });
-                                getCustomerDetails(rawMaterialDropdown);
-                              },
-                              items: rawMaterialList
-                                  .map<DropdownMenuItem<String>>(
-                                      (String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(
-                                    value,
-                                    style: TextStyle(
-                                        fontSize: 18, color: Colors.black),
-                                  ),
-                                );
-                              }).toList(),
+                          child: InkWell(
+                            onTap: () {
+                              var jsonArray = [];
+
+                              double rDefaultWidth = 120;
+
+                              showDialog<void>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return StatefulBuilder(
+                                      builder: (context, _setState) {
+                                    return AlertDialog(
+                                      title: const Text(
+                                        'Select Customer Name',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          TextField(
+                                            decoration: InputDecoration(
+                                              prefixIcon: Icon(Icons.search),
+                                              border: OutlineInputBorder(),
+                                              hintText: "Enter customer number",
+                                            ),
+                                            onSubmitted: (value) async {
+                                              if (value.isNotEmpty) {
+                                                await get(Uri.parse(APIUrl
+                                                            .mainUrl +
+                                                        "search.php?search=$value"))
+                                                    .then((value) {
+                                                  print(
+                                                      "Number Data :: ${value.body}");
+                                                  int len = getJsonLength(
+                                                      jsonDecode(value.body));
+                                                  jsonArray.clear();
+                                                  for (int i = 0;
+                                                      i < len;
+                                                      i++) {
+                                                    jsonArray.add(jsonDecode(
+                                                        value.body)[i]);
+                                                  }
+                                                  _setState(() {});
+                                                });
+                                              }
+                                            },
+                                          ),
+                                          SizedBox(
+                                            height: 333,
+                                            child: SingleChildScrollView(
+                                              child: Column(
+                                                children: List.generate(
+                                                    jsonArray.length, (index) {
+                                                  return ListTile(
+                                                    onTap: () {
+                                                      //{id: 32, name: BHASKAR MAULI,
+                                                      // gst_num: , address: , state: MAHARASHTRA,
+                                                      // city: AHMEDNAGAR, com_name: MEDICAL SYSTEM,
+                                                      // date: DD-MM-YYYY,
+                                                      // phone_number: 9022887535, email: }
+                                                    },
+                                                    leading: Icon(Icons
+                                                        .account_circle_rounded),
+                                                    title: Row(
+                                                      children: [
+                                                        SizedBox(
+                                                          width: rDefaultWidth,
+                                                          child:
+                                                              CusDetailsWidgets(
+                                                            jsonArray:
+                                                                jsonArray[index]
+                                                                    ["name"],
+                                                            title: "Name",
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width: rDefaultWidth,
+                                                          child:
+                                                              CusDetailsWidgets(
+                                                            jsonArray:
+                                                                jsonArray[index]
+                                                                    ["gst_num"],
+                                                            title: "GST No.",
+                                                          ),
+                                                        ),
+                                                        // SizedBox(
+                                                        //   width: rDefaultWidth,
+                                                        //   child:
+                                                        //       CusDetailsWidgets(
+                                                        //     jsonArray:
+                                                        //         jsonArray[index]
+                                                        //             ["address"],
+                                                        //     title: "Address",
+                                                        //   ),
+                                                        // ),
+                                                        SizedBox(
+                                                          width: rDefaultWidth *
+                                                              1.5,
+                                                          child:
+                                                              CusDetailsWidgets(
+                                                            jsonArray:
+                                                                jsonArray[index]
+                                                                    ["state"],
+                                                            title: "State",
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width: rDefaultWidth *
+                                                              1.5,
+                                                          child:
+                                                              CusDetailsWidgets(
+                                                            jsonArray:
+                                                                jsonArray[index]
+                                                                    ["city"],
+                                                            title: "City",
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width: rDefaultWidth,
+                                                          child:
+                                                              CusDetailsWidgets(
+                                                            jsonArray: jsonArray[
+                                                                    index][
+                                                                "phone_number"],
+                                                            title: "Phone",
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width:
+                                                              rDefaultWidth * 3,
+                                                          child:
+                                                              CusDetailsWidgets(
+                                                            jsonArray:
+                                                                jsonArray[index]
+                                                                    [
+                                                                    "com_name"],
+                                                            title: "Company",
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                }),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  });
+                                },
+                              );
+                            },
+                            child: Container(
+                              height: 26,
+                              width: 333,
+                              decoration: BoxDecoration(
+                                  color: Color(0xfff2f2f2),
+                                  // border: Border.all(width: 1, color: grey),
+                                  borderRadius: BorderRadius.circular(0)),
+                              margin:
+                                  EdgeInsets.only(left: 18, right: 18, top: 6),
+                              padding: EdgeInsets.only(left: 14),
+                              child: Text(
+                                "Select",
+                                style: TextStyle(fontSize: 18),
+                              ),
                             ),
                           ),
                         ),
@@ -548,7 +681,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                                               ),
                                             ),
                                             SizedBox(
-                                              width: 12,
+                                              width: 3,
                                             ),
                                             Expanded(
                                               flex: 6,
@@ -605,7 +738,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                                               size: 18,
                                             ),
                                             SizedBox(
-                                              width: 12,
+                                              width: 3,
                                             ),
                                             Expanded(
                                               flex: 6,
@@ -875,8 +1008,8 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
             // backgroundColor: colorCardWhite,
             itemStyle: TextStyle(
                 color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
-            doneStyle: TextStyle(color: Colors.white, fontSize: 16),
-            cancelStyle: TextStyle(color: Colors.white, fontSize: 16)),
+            doneStyle: TextStyle(color: Colors.white, fontSize: 12),
+            cancelStyle: TextStyle(color: Colors.white, fontSize: 12)),
         minTime: DateTime(DateTime.now().year - 2),
         maxTime: DateTime(DateTime.now().year + 2), onChanged: (date) {
       print('change $date');
@@ -1702,7 +1835,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
     // "com_name":"Ak","date":"10-12-2021","phone_number":"124222151",
     // "email":"pu@gmail.com"}]
     Uri url =
-        Uri.parse(APIUrl.mainUrl + APIUrl.getCustomerDetails + "?name=$Name");
+        Uri.parse(APIUrl.mainUrl + APIUrl.getCustomerDetails + "?number=$Name");
     get(url).then((value) {
       print("Details :: ${value.body}");
       customerDetailsJson = jsonDecode(value.body)[0];
@@ -2035,5 +2168,32 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
             double.parse(preTotal.toString())) /
         100;
     return tt.toString();
+  }
+}
+
+class CusDetailsWidgets extends StatelessWidget {
+  const CusDetailsWidgets({
+    Key key,
+    @required this.jsonArray,
+    this.title,
+  }) : super(key: key);
+
+  final String jsonArray;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      children: [
+        Text(
+          "$title : ",
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          "$jsonArray".trim().isEmpty ? "NA " : "$jsonArray",
+          style: TextStyle(fontSize: 12),
+        ),
+      ],
+    );
   }
 }
