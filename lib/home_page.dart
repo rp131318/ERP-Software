@@ -11,7 +11,6 @@ import 'package:erp_software/login_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:filepicker_windows/filepicker_windows.dart';
-
 import 'Tab Pages/emplyoee_details_page.dart';
 import 'Tab Pages/marketing_details.dart';
 
@@ -24,9 +23,11 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState(adminCount);
 }
 
+///Selection
+
 class _HomePageState extends State<HomePage> {
   int adminCount;
-  int currentPage = 0;
+  int currentPage = 1;
   var buttonArray = [
     "Raw Material",
     "Finish Product",

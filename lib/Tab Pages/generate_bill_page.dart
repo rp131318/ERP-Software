@@ -1,19 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:number_to_words/number_to_words.dart';
+
 import 'package:erp_software/Widgets/button_widget.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:http/http.dart';
+import 'package:number_to_words/number_to_words.dart';
+import 'package:open_file/open_file.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:flutter/material.dart';
-import 'package:open_file/open_file.dart';
-import 'package:filepicker_windows/filepicker_windows.dart';
-import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../globalVariable.dart';
-import 'dart:io' as Io;
-import 'package:ext_storage/ext_storage.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class GenerateBillPage extends StatefulWidget {
   @override
@@ -52,6 +51,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
   String totalFinal = "";
 
   var subTotalArray = [];
+  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
 
   //
   int idOfPaymentMethod = 1;
@@ -75,6 +75,16 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
   var updateQntArray = [];
   SharedPreferences prefs;
 
+  String personName = "Select";
+
+  String accountHolder = "BREATHE MEDICAL SYSTEMS PRIVATE LIMITED";
+  String accountBankName = "HDFC Bank";
+  String accountNumber = "50200065793427";
+  String accountIFSC = "HDFC0000251";
+  String accountBranch = "RING ROAD - SURAT";
+  String accountType = "CURRENT";
+  String billNumber = "";
+
   @override
   void initState() {
     // TODO: implement initState
@@ -82,12 +92,14 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
     // getCustomer();
     getAllFinalProducts();
     getImage();
+    getBillNumber();
     // pdfTrial();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldkey,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -374,7 +386,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 18),
                             child: Text(
-                              "Select customer name",
+                              "Select customer",
                               style: TextStyle(
                                   fontSize: 14,
                                   color: colorBlack5,
@@ -439,11 +451,13 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                                                     jsonArray.length, (index) {
                                                   return ListTile(
                                                     onTap: () {
-                                                      //{id: 32, name: BHASKAR MAULI,
-                                                      // gst_num: , address: , state: MAHARASHTRA,
-                                                      // city: AHMEDNAGAR, com_name: MEDICAL SYSTEM,
-                                                      // date: DD-MM-YYYY,
-                                                      // phone_number: 9022887535, email: }
+                                                      Navigator.pop(context);
+                                                      getCustomerDetails(
+                                                          "${jsonArray[index]["phone_number"]}");
+                                                      setState(() {
+                                                        personName =
+                                                            "${jsonArray[index]["phone_number"]} - ${jsonArray[index]["name"]}";
+                                                      });
                                                     },
                                                     leading: Icon(Icons
                                                         .account_circle_rounded),
@@ -548,7 +562,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                                   EdgeInsets.only(left: 18, right: 18, top: 6),
                               padding: EdgeInsets.only(left: 14),
                               child: Text(
-                                "Select",
+                                personName,
                                 style: TextStyle(fontSize: 18),
                               ),
                             ),
@@ -940,13 +954,42 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                       context: context,
                       buttonText: "Final Bill",
                       function: () async {
-                        showSnackbar(context, "Please wait we are creating PDF",
-                            Colors.green);
-                        await prefs.setInt(
-                            "billNo", prefs.getInt("billNo") + 1);
-                        pdfTrial(2, "Original for recipient");
-                        pdfTrial(2, "Duplicate for transportation");
-                        pdfTrial(3, "Triplicates  for supplier");
+                        showDialog<void>(
+                          context: context,
+                          barrierDismissible: false, // user must tap button!
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text(
+                                'Final Bill !',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                              content: Text(
+                                  "Once final bill generate than that bill can not delete. Do you really want to generate?"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text("No"),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    Navigator.pop(context);
+                                    showSnackbar(
+                                        _scaffoldkey.currentContext,
+                                        "Please wait we are creating PDF",
+                                        Colors.green);
+                                    increaseBillNumber();
+                                    pdfTrial(2, "Original for recipient");
+                                    pdfTrial(2, "Duplicate for transportation");
+                                    pdfTrial(3, "Triplicates  for supplier");
+                                  },
+                                  child: Text("Yes"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       },
                       left: 0,
                       right: 0,
@@ -1355,7 +1398,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                                           ),
                                           pw.Expanded(
                                             child: pw.Text(
-                                              "Yes Bank",
+                                              accountBankName,
                                               style: pw.TextStyle(fontSize: 8),
                                             ),
                                           ),
@@ -1380,7 +1423,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                                           ),
                                           pw.Expanded(
                                             child: pw.Text(
-                                              "009883800003015",
+                                              accountNumber,
                                               style: pw.TextStyle(fontSize: 8),
                                             ),
                                           ),
@@ -1405,7 +1448,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
                                           ),
                                           pw.Expanded(
                                             child: pw.Text(
-                                              "YESB0000098",
+                                              accountIFSC,
                                               style: pw.TextStyle(fontSize: 8),
                                             ),
                                           ),
@@ -1692,7 +1735,7 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
         pw.Padding(
           padding: const pw.EdgeInsets.only(left: 4),
           child: pw.Text(
-            "B" + (prefs.getInt("billNo").toString()),
+            billNumber,
             style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
           ),
         ),
@@ -2095,9 +2138,6 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
 
   Future<void> getImage() async {
     prefs = await SharedPreferences.getInstance();
-    if (prefs.getInt("billNo").toString() == "null") {
-      await prefs.setInt("billNo", 115);
-    }
     assetImage = pw.MemoryImage(
       (await rootBundle.load('images/logo.png')).buffer.asUint8List(),
     );
@@ -2168,6 +2208,33 @@ class _GenerateBillPageState extends State<GenerateBillPage> {
             double.parse(preTotal.toString())) /
         100;
     return tt.toString();
+  }
+
+  void getBillNumber() {
+    get(Uri.parse(APIUrl.mainUrl + APIUrl.getBillNumber)).then((value) {
+      print("getBillNumber :: ${value.body}");
+      final jsonData = jsonDecode(value.body)[0];
+      billNumber = "${jsonData["initial"]}-${jsonData["current_no"]}";
+      print("billNumber :: $billNumber");
+    });
+  }
+
+  void increaseBillNumber() {
+    if (billNumber.split("-").length >= 1) {
+      int _billNumber = int.parse(billNumber.split("-")[1].toString());
+      _billNumber++;
+
+      print("_billNumber :: $_billNumber");
+
+      get(Uri.parse(APIUrl.mainUrl +
+              APIUrl.updateBillNumber +
+              "?bill_no=$_billNumber&pending_no=1"))
+          .then((value) {
+        print("Bill Number Increased... ${value.body}");
+      });
+    } else {
+      showSnackbar(context, "Bill Number Error...", Colors.red);
+    }
   }
 }
 

@@ -168,12 +168,15 @@ class APIUrl {
   // https://breathemedicalsystems.com/inventory_management/delte_kaccha.php?name=5" Display
   static String deleteKachaBill = "delete_kaccha.php";
 
-  //
   static String updatePaymentMode = "update_paymentmode.php";
   static String updateRawStand = "update_raw_stand.php";
   static String sendRawStandBy = "send_rawstandby.php";
   static String getStandByRaw = "get_standby.php";
   static String deleteStandByRaw = "delete_standby.php";
+
+  ///Bill Number manage
+  static String getBillNumber = "get_bill_no.php";
+  static String updateBillNumber = "update_bill_no.php";
 
 /*
   * https://breathemedicalsystems.com/inventory_management/update_paymentmode.php?payment_type=NEFT&bank=BOB&number=630337229616&id=16

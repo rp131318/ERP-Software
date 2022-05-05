@@ -20,8 +20,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.amber,
       ),
       // home: TrialPage(),
-      // home: HomePage(0),
-      home: LoginPage(),
+      home: HomePage(0),
+      // home: LoginPage(),
     );
   }
 }
